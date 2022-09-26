@@ -1,0 +1,5 @@
+theme = "light"
+
+[editor]
+true-color = true
+rulers = [80,100]
