@@ -39,9 +39,11 @@
 "diff.delta" = "blue-aaa"
 "info" = "black"
 "hint" = "black"
-"debug" = "cyan-aaa"
-"diagnostic" = "black"
+"warning" = "black"
 "error" = "red-aaa"
+"diagnostic" = { bg = "gray15"}
+"diagnostic.warning" = { bg = "yellow15" }
+"diagnostic.error" = { bg = "red15" }
 "markup.heading.marker" = "gray30"
 "markup.heading.1" = { fg = "red-aa", modifiers = ["bold"] }
 "markup.heading.2" = { fg = "blue-aa", modifiers = ["bold"] }
@@ -67,8 +69,8 @@ gray15      = "#d1d1d1"
 gray20      = "#b5b5b5"
 gray25      = "#a3a3a3"
 gray30      = "#949494"
-green15     = "#00f000"
-cyan15      = "#00e6e6"
+yellow15    = "#ffffd1"
+red15       = "#ffd1d1"
 green-aa    = "#008A00"
 green-aaa   = "#006600"
 blue-aa     = "#6161ff"
