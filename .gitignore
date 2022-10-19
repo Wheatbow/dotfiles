@@ -22,3 +22,5 @@
 !/.config/sway/config
 !/.config/mpv
 !/.config/mpv/mpv.conf
+!/.config/npm
+!/.config/npm/npmrc

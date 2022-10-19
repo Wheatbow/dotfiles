@@ -14,12 +14,16 @@ export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
 
 # XDG_CONFIG_HOME
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 
 # XDG_CACHE_HOME
 
 # XDG_DATA_HOME
 
 # XDG_RUNTIME_DIR
+
+# PATH
+export PATH="$PATH:$HOME/.local/share/npm/bin"
 
 export GPG_TTY="$(tty)"
 export SSH_AUTH_SOCK="$(gpgconf --list-dirs agent-ssh-socket)"
