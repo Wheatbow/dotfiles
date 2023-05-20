@@ -1,0 +1,11 @@
+[commit]
+	verbose = true
+	gpgsign = true
+[core]
+	editor = hx
+[gpg]
+	format = ssh
+[init]
+	defaultBranch = trunk
+[tag]
+	gpgsign = true

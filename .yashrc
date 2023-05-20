@@ -1,0 +1,52 @@
+. --autoload --no-alias initialization/common
+unset HISTFILE
+
+alias ls="ls -alh"
+alias du="du -h"
+alias df="df -h"
+alias free="free -m"
+alias pcpu="ps u -u $USER --sort=-pcpu"
+alias pmem="ps u -u $USER --sort=-pmem"
+alias aa="sudo apk add"
+alias ad="sudo apk del"
+alias af="sudo apk fix"
+alias au="sudo apk update"
+alias ai="sudo apk info"
+alias as="sudo apk search"
+alias auu="sudo apk upgrade"
+alias ac="sudo apk cache"
+alias av="sudo apk version"
+alias mount="udisksctl mount -b"
+alias umount="udisksctl unmount -b"
+alias loop="udisksctl loop-setup -rf"
+alias uloop="udisksctl loop-delete -b"
+
+se () {
+	if [ ! -e $1 ]; then
+		mkdir $1
+		gocryptfs -init -xchacha $1
+		if [ $? -ne 0 ]; then
+			rmdir $1
+			return 1
+		fi
+	fi
+	local temp=$(mktemp -d XXXXXXXXXXXXXXXX --tmpdir)
+	trap 'rmdir $temp' 0 2 3 15
+	gocryptfs -q $1 $temp
+	if [ $? -ne 0 ]; then
+		rmdir $temp
+		return 1
+	fi
+	trap 'fusermount -uq $temp' 0 2 3 15
+	if [ -z ${2+x} ]; then
+		yash -c "cd $temp;$SHELL"
+	else
+		$2 $temp
+	fi
+	fusermount -uq $temp
+	rmdir $temp
+}
+
+sehx () {
+	se $1 hx
+}
