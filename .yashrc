@@ -20,8 +20,9 @@ alias mount="udisksctl mount -b"
 alias umount="udisksctl unmount -b"
 alias loop="udisksctl loop-setup -rf"
 alias uloop="udisksctl loop-delete -b"
+alias pn="pnpm"
 
-se () {
+sf () {
 	if [ ! -e $1 ]; then
 		mkdir $1
 		gocryptfs -init -xchacha $1
@@ -47,6 +48,6 @@ se () {
 	rmdir $temp
 }
 
-sehx () {
-	se $1 hx
+sfhx () {
+	q $1 hx
 }
