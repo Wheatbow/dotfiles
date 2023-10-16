@@ -26,5 +26,5 @@ fi
 /usr/libexec/pipewire-launcher > /dev/null 2>&1
 
 if [ -z $WAYLAND_DISPLAY ] && [ $(tty) == /dev/tty1 ]; then
-	exec dbus-launch --exit-with-session sway
+	exec dbus-run-session -- sway
 fi
