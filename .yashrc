@@ -49,5 +49,5 @@ sf () {
 }
 
 sfhx () {
-	q $1 hx
+	sf $1 hx
 }
