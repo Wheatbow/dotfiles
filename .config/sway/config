@@ -20,6 +20,7 @@ floating_modifier $mod normal
 
 bindsym $mod+Return exec $term
 bindsym $mod+b exec firefox
+bindsym $mod+Shift+b exec chromium
 bindsym $mod+k kill
 bindsym $mod+Shift+r reload
 bindsym $mod+Shift+k exec swaymsg exit
