@@ -23,6 +23,8 @@ if [ ! -S "$SSH_AUTH_SOCK" ]; then
   eval $(ssh-agent -a $SSH_AUTH_SOCK > /dev/null 2>&1)
 fi
 
+/usr/bin/proptest -M i915 -D /dev/dri/card1 79 connector 81 1
+
 /usr/libexec/pipewire-launcher > /dev/null 2>&1
 
 if [ -z $WAYLAND_DISPLAY ] && [ $(tty) == /dev/tty1 ]; then
