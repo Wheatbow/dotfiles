@@ -13,6 +13,8 @@ export BROWSER="firefox"
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 
 /usr/bin/proptest -M i915 -D /dev/dri/card1 79 connector 81 1
+/usr/bin/proptest -M i915 -D /dev/dri/card1 87 connector 81 1
+/usr/bin/proptest -M i915 -D /dev/dri/card1 94 connector 81 1
 
 export MOZ_ENABLE_WAYLAND="1"
 
