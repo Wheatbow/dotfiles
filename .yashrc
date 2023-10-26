@@ -1,7 +1,11 @@
 . --autoload --no-alias initialization/common
 unset HISTFILE
 
-alias ls="ls -alh"
+alias mkdir="mkdir -p"
+alias rm="rm -Ir"
+alias cp="cp -i"
+alias mv="mv -i"
+alias ls="ls -alh --group-directories-first"
 alias du="du -h"
 alias df="df -h"
 alias free="free -m"
