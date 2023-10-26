@@ -3,6 +3,7 @@
 	gpgsign = true
 [core]
 	editor = hx
+	pager = cat
 [gpg]
 	format = ssh
 [init]
