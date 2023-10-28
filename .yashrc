@@ -40,10 +40,10 @@ agenda() {
 		path="$(pwd)"
 	elif [ "$#" -eq 1 ]; then
 		command="edit"
-		path="$1"
+		path="$(pwd)/$1"
 	elif [ "$#" -eq 2 ]; then
 		command="$1"
-		path="$2"
+		path="$(pwd)/$2"
 	else
 		printf "Too many arguments!\n"
 		return 1
@@ -51,7 +51,7 @@ agenda() {
 	case "$command" in
 		init)
 			if [ -e "$path" ]; then
-				printf "agenda init: %s: Directory already exist\n" "$path"
+				printf "agenda init %s: Directory already exist\n" "$path"
 				return 1
 			fi
 			mkdir -p "$path"
@@ -71,10 +71,10 @@ agenda() {
 			;;
 		edit|shell)
 			if [ ! -d "$path" ]; then
-				printf "agenda: %s: No such directory\n" "$path"
+				printf "agenda %s %s: No such directory\n" "$command" "$path"
 				return 1
 			elif [ ! -f "$path/gocryptfs.age" ]; then
-				printf "agenda: %s: Missing gocryptfs.age\n" "$path"
+				printf "agenda %s %s: Missing gocryptfs.age\n" "$command" "$path"
 				return 1
 			elif [ ! -f "$path/gocryptfs.conf" ]; then
 				printf "Enter the passphrase protecting the gocryptfs.conf file.\n"
@@ -103,7 +103,7 @@ agenda() {
 			fi
 			;;
 		*)
-			printf "agenda: %s: Invalid command\n" "$command"
+			printf "agenda %s: Invalid command\n" "$command"
 			return 1;
 	esac
 }
