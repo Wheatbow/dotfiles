@@ -1,16 +1,28 @@
-. --autoload --no-alias initialization/common
-unset HISTFILE
+#!/bin/sh
+# shellcheck disable=SC3043
+
+export PS1
+PS1='${${?:/0/\\fg}/#[1-9]/\\fr}${$(pwd)/~/\~}\$ '
+
+_autocd() {
+	if [ -d "$1" ]; then
+		export HANDLED=true
+		# shellcheck disable=SC2164
+  	cd -- "$@"
+	fi
+}
+export COMMAND_NOT_FOUND_HANDLER='_autocd "$@"'
 
 alias mkdir="mkdir -p"
 alias rm="rm -Ir"
 alias cp="cp -i"
 alias mv="mv -i"
-alias ls="ls -alh --group-directories-first"
+alias ls="ls -alh --color=auto --group-directories-first"
 alias du="du -h"
 alias df="df -h"
 alias free="free -m"
-alias pcpu="ps u -u $USER --sort=-pcpu"
-alias pmem="ps u -u $USER --sort=-pmem"
+alias pcpu='ps u -u "$USER" --sort=-pcpu'
+alias pmem='ps u -u "$USER" --sort=-pmem'
 alias paci="doas pacman -S"
 alias pacr="doas pacman -Rsn"
 alias pacu="doas pacman -Syu"
@@ -20,32 +32,78 @@ alias loop="udisksctl loop-setup -rf"
 alias uloop="udisksctl loop-delete -b"
 alias -g hx="helix"
 
-sf () {
-	if [ ! -e $1 ]; then
-		mkdir $1
-		gocryptfs -init -xchacha $1
-		if [ $? -ne 0 ]; then
-			rmdir $1
-			return 1
-		fi
-	fi
-	local temp=$(mktemp -d XXXXXXXXXXXXXXXX --tmpdir)
-	trap 'rmdir $temp' 0 2 3 15
-	gocryptfs -q $1 $temp
-	if [ $? -ne 0 ]; then
-		rmdir $temp
+agenda() {
+	local command
+	local path
+	if [ "$#" -eq 0 ]; then
+		command="edit"
+		path="$(pwd)"
+	elif [ "$#" -eq 1 ]; then
+		command="edit"
+		path="$1"
+	elif [ "$#" -eq 2 ]; then
+		command="$1"
+		path="$2"
+	else
+		printf "Too many arguments!\n"
 		return 1
 	fi
-	trap 'fusermount -uq $temp' 0 2 3 15
-	if [ -z ${2+x} ]; then
-		yash -c "cd $temp;$SHELL"
-	else
-		$2 $temp
-	fi
-	fusermount -uq $temp
-	rmdir $temp
-}
-
-sfhx () {
-	sf $1 hx
+	case "$command" in
+		init)
+			if [ -e "$path" ]; then
+				printf "agenda init: %s: Directory already exist\n" "$path"
+				return 1
+			fi
+			mkdir -p "$path"
+			trap 'rmdir -p "$path"' 0 2 3 15
+			printf "Choose a password for protecting your files.\n"
+			if ! gocryptfs -q -init -xchacha -- "$path"; then
+				rmdir -p "$path"
+				return 1
+			fi
+			while true; do
+				printf "Choose a passhrase for protecting the gocryptfs.conf file.\n"
+				if age -e -a -p -o "$path/gocryptfs.age" "$path/gocryptfs.conf"; then
+					break
+				fi
+			done
+			git -C "$path" init
+			;;
+		edit|shell)
+			if [ ! -d "$path" ]; then
+				printf "agenda: %s: No such directory\n" "$path"
+				return 1
+			elif [ ! -f "$path/gocryptfs.age" ]; then
+				printf "agenda: %s: Missing gocryptfs.age\n" "$path"
+				return 1
+			elif [ ! -f "$path/gocryptfs.conf" ]; then
+				printf "Enter the passphrase protecting the gocryptfs.conf file.\n"
+				age -d -p -o "$path/gocryptfs.conf" "$path/gocryptfs.age"
+			fi
+		local temp
+			temp="$(mktemp -d XXXXXXXXXXXXXXXX --tmpdir)"
+			trap 'rmdir "$temp"' 0 2 3 15
+			if ! gocryptfs -q -- "$path" "$temp"; then
+				rmdir "$temp"
+				return 1
+			fi
+			trap 'fusermount -uq "$temp"' 0 2 3 15
+			case "$command" in
+				edit) "$EDITOR" "$temp";;
+				shell) yash -c "cd $temp;$SHELL"
+			esac
+			fusermount -uq "$temp"
+			rmdir "$temp"
+			if [ -n "$(git -C "$path" status --porcelain)" ]; then
+				git -C "$path" add --all || return
+				printf "Committing changes...\n"
+				git -C "$path" commit --allow-empty-message --no-edit || return
+				printf "Pushing changes...\n"
+				git -C "$path" push || return
+			fi
+			;;
+		*)
+			printf "agenda: %s: Invalid command\n" "$command"
+			return 1;
+	esac
 }
