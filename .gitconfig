@@ -2,7 +2,7 @@
 	verbose = true
 	gpgsign = true
 [core]
-	editor = hx
+	editor = helix
 	pager = cat
 [gpg]
 	format = ssh
