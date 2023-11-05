@@ -1,5 +1,5 @@
 #!/bin/sh
-# shellcheck disable=SC3043
+#shellcheck disable=SC3043
 
 export PS1
 PS1='${${?:/0/\\fg}/#[1-9]/\\fr}${$(pwd)/~/\~}\$ '
@@ -32,6 +32,40 @@ alias loop="udisksctl loop-setup -rf"
 alias uloop="udisksctl loop-delete -b"
 alias -g hx="helix"
 
+_realpath() {
+	if [ -z "$1" ]; then
+		printf "realpath: missing operand\n"
+		return 1
+	fi
+	local in
+	in="$1"
+	local out
+	local component
+	component="${in%/"${in#*/}"}"
+	if [ -n "$component" ]; then
+		out="$(pwd)"
+  fi
+	while true; do
+		if [ -n "$component" ] && [ "$component" != '.' ]; then
+			if [ $component = '..' ]; then
+				out="${out%/*}"
+			else
+				out="$out/$component"
+			fi
+		fi
+		in="${in#*/}"
+		if [ "$in" = "$component" ]; then
+			if [ -n "$out" ]; then
+				printf "$out\n"
+			else
+				printf "/\n"
+			fi
+			return 0
+		fi
+		component="${in%/"${in#*/}"}"
+	done
+}
+
 agenda() {
 	local command
 	local path
@@ -40,18 +74,18 @@ agenda() {
 		path="$(pwd)"
 	elif [ "$#" -eq 1 ]; then
 		command="edit"
-		path="$(pwd)/$1"
+		path="$(_realpath "$1")"
 	elif [ "$#" -eq 2 ]; then
 		command="$1"
-		path="$(pwd)/$2"
+		path="$(_realpath "$2")"
 	else
-		printf "Too many arguments!\n"
+		printf "agenda: too many arguments\n"
 		return 1
 	fi
 	case "$command" in
 		init)
 			if [ -e "$path" ]; then
-				printf "agenda init %s: Directory already exist\n" "$path"
+				printf "agenda init %s: directory already exist\n" "$path"
 				return 1
 			fi
 			mkdir -p "$path"
@@ -71,16 +105,16 @@ agenda() {
 			;;
 		edit|shell)
 			if [ ! -d "$path" ]; then
-				printf "agenda %s %s: No such directory\n" "$command" "$path"
+				printf "agenda %s %s: no such directory\n" "$command" "$path"
 				return 1
 			elif [ ! -f "$path/gocryptfs.age" ]; then
-				printf "agenda %s %s: Missing gocryptfs.age\n" "$command" "$path"
+				printf "agenda %s %s: missing gocryptfs.age\n" "$command" "$path"
 				return 1
 			elif [ ! -f "$path/gocryptfs.conf" ]; then
 				printf "Enter the passphrase protecting the gocryptfs.conf file.\n"
 				age -d -p -o "$path/gocryptfs.conf" "$path/gocryptfs.age"
 			fi
-		local temp
+			local temp
 			temp="$(mktemp -d XXXXXXXXXXXXXXXX --tmpdir)"
 			trap 'rmdir "$temp"' 0 2 3 15
 			if ! gocryptfs -q -- "$path" "$temp"; then
@@ -103,7 +137,7 @@ agenda() {
 			fi
 			;;
 		*)
-			printf "agenda %s: Invalid command\n" "$command"
+			printf "agenda %s: invalid command\n" "$command"
 			return 1;
 	esac
 }
