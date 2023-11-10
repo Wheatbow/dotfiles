@@ -32,6 +32,33 @@ alias loop="udisksctl loop-setup -rf"
 alias uloop="udisksctl loop-delete -b"
 alias -g hx="helix"
 
+_basename() {
+	if [ "$#" -eq 0 ]; then
+		printf "basename: missing operand\n"
+		return 1
+	fi
+	for in in "$@"; do
+		while true; do
+			local head
+			head="${in%/*}"
+			local tail
+			tail="${in#"$head"}"
+			if [ "$tail" != "/" ]; then
+				if [ -n "$tail" ]; then
+					printf "%s\n" "${tail#/}"
+				else
+					printf "%s\n" "$head"
+				fi
+				break
+			elif [ -z "$head" ]; then
+				printf "%s\n" "$tail"
+				break
+			fi
+			in="$head"
+		done
+	done
+}
+
 _realpath() {
 	if [ "$#" -eq 0 ]; then
 		printf "realpath: missing operand\n"
@@ -69,68 +96,74 @@ _realpath() {
 }
 
 agenda() {
-	if [ "$#" -eq 0 ]; then
+	if [ "$#" -lt 2 ]; then
 		printf "agenda: missing operand\n"
 		return 1
 	fi
 	local command
+	command="$1"
 	local path
-	if [ "$#" -eq 1 ]; then
-		command="edit"
-		path="$(_realpath "$1")"
-	elif [ "$#" -eq 2 ]; then
-		command="$1"
-		path="$(_realpath "$2")"
-	else
-		printf "agenda: too many operands\n"
-		return 1
-	fi
+	path="$(_realpath "$2")"
 	case "$command" in
-		init)
+		create)
 			if [ -e "$path" ]; then
-				printf "agenda init %s: directory already exist\n" "$path"
+				printf "agenda create %s: directory already exist\n" "$path"
 				return 1
 			fi
-			mkdir -p "$path"
-			trap 'rmdir -p "$path"' 0 2 3 15
+			temp="$(mktemp -d XXXXXXXXXXXXXXXX --tmpdir)"
+			trap 'rm -rf "$temp"' EXIT
+			local identity
+			IFS="" identity="$(age-keygen 2> /dev/null)"
+			local recipient
+			recipient="$(echo "$identity" | age-keygen -y)"
 			printf "Choose a password for protecting your files.\n"
-			if ! gocryptfs -q -init -xchacha -- "$path"; then
-				rmdir -p "$path"
+			if ! echo "$identity" | age -e -p -o "$temp/identity.age"; then
+				rm -rf "$temp"
 				return 1
 			fi
-			while true; do
-				printf "Choose a passhrase for protecting the gocryptfs.conf file.\n"
-				if age -e -a -p -o "$path/gocryptfs.age" "$path/gocryptfs.conf"; then
-					break
-				fi
-			done
+			unset identity
+			mkdir -p "$temp/protected/content"
+			echo "$recipient" > "$temp/protected/recipient"
+			tar -c --zstd -C "$temp" "protected" | age -e -r "$recipient" -o "$temp/protected.age"
+			mkdir -p "$path"
+			cp "$temp/identity.age" "$temp/protected.age" "$path"
+			rm -rf "$temp"
 			git -C "$path" init
 			;;
-		edit|shell)
+		shell|edit)
 			if [ ! -d "$path" ]; then
 				printf "agenda %s %s: no such directory\n" "$command" "$path"
 				return 1
-			elif [ ! -f "$path/gocryptfs.age" ]; then
-				printf "agenda %s %s: missing gocryptfs.age\n" "$command" "$path"
+			elif [ ! -f "$path/identity.age" ]; then
+				printf "agenda %s %s: missing identity.age\n" "$command" "$path"
 				return 1
-			elif [ ! -f "$path/gocryptfs.conf" ]; then
-				printf "Enter the passphrase protecting the gocryptfs.conf file.\n"
-				age -d -p -o "$path/gocryptfs.conf" "$path/gocryptfs.age"
+			elif [ ! -f "$path/protected.age" ]; then
+				printf "agenda %s %s: missing protected.age\n" "$command" "$path"
+				return 1
 			fi
-			local temp
 			temp="$(mktemp -d XXXXXXXXXXXXXXXX --tmpdir)"
-			trap 'rmdir "$temp"' 0 2 3 15
-			if ! gocryptfs -q -- "$path" "$temp"; then
-				rmdir "$temp"
+			trap 'rm -rf "$temp"' EXIT
+			if ! age -d -i "$path/identity.age" "$path/protected.age" | tar -x --zstd -C "$temp"; then
+				rm -rf "$temp"
 				return 1
 			fi
-			trap 'fusermount -uq "$temp"' 0 2 3 15
+			local pipe
+			pipe="$temp/pipe"
+			mkfifo "$pipe"
+			inotifywait -m -q -r -e create -e delete -e modify -e move -o "$pipe" "$temp/protected/content" &
+			local pid
+			pid=$!
+			{ while read -r _event; do
+					tar -c --zstd -C "$temp" "protected" | age -e -R "$temp/protected/recipient" -o "$path/protected.age"
+			  done < "$pipe" 
+			} &
 			case "$command" in
-				edit) "$EDITOR" "$temp";;
-				shell) yash -c "cd $temp;$SHELL"
+				edit) "$EDITOR" "$temp/protected/content" ;;
+				shell) yash -c "cd $temp/protected/content;$SHELL" ;;
 			esac
-			fusermount -uq "$temp"
-			rmdir "$temp"
+			kill "$pid"
+			wait 1> /dev/null
+			rm -rf "$temp"
 			if [ -n "$(git -C "$path" status --porcelain)" ]; then
 				git -C "$path" add --all || return
 				printf "Committing changes...\n"
@@ -140,7 +173,7 @@ agenda() {
 			fi
 			;;
 		*)
-			printf "agenda %s: invalid command\n" "$command"
-			return 1;
+			printf "agenda %s %s: invalid command\n" "$command" "$path"
+			return 1
 	esac
 }
