@@ -299,11 +299,11 @@ bottle() {
 					WINEPREFIX="$prefix" WINEDEBUG="$debug" wine start "$executable" 2> "$prefix/wine.log"
 					;;
 				install)
-					if [ "$#" -lt 3 ]; then
+					if [ -z "$1" ]; then
 						printf "bottle install %s: missing operand\n" "$path"
 						return 1
 					fi
-					WINEPREFIX="$prefix" winetricks "$3"
+					WINEPREFIX="$prefix" winetricks "$1"
 					;;
 				config)
 					WINEPREFIX="$prefix" WINEDEBUG="$debug" winecfg 2> "$prefix/wine.log"
