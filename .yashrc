@@ -279,8 +279,8 @@ bottle() {
 			case "$command" in
 				start)
 					local executable
-					if [ "$#" -eq 3 ]; then
-						executable="$3"
+					if [ -n "$1" ]; then
+						executable="$1"
 					elif [ -f "$path" ]; then
 						if [ "$executable" = "${executable%shortcut}" ]; then
 							executable="$(WINEPREFIX="$prefix" winepath -w "$path")"
