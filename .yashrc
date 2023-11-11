@@ -235,7 +235,7 @@ bottle() {
 			mkdir -p "$prefix"
 			WINEPREFIX="$prefix" WINEDEBUG="-all" wineboot -i
 			;;
-		config|start|stop|kill)
+		config|start|stop|kill|install)
 			local root
 			while true; do
 				local head
@@ -257,25 +257,32 @@ bottle() {
 			done
 			case "$command" in
 				start)
-					if [ -d "$path" ]; then
-						if [ ! -f "$path/default.shortcut" ]; then
+					local executable
+					if [ "$#" -eq 3 ]; then
+						executable="$3"
+					elif [ -f "$path" ]; then
+						if [ "$executable" = "${executable%shortcut}" ]; then
+							executable="$(WINEPREFIX="$prefix" winepath -w "$path")"
+						else
+							read -r executable < "$path"
+						fi
+					elif [ -d "$path" ]; then
+						if [ ! -f  "$path/default.shortcut" ]; then
 							printf "bottle start %s: missing default.shortcut\n" "$path"
 							return 1
 						fi
-						local shortcut
-						read -r shortcut < "$path/default.shortcut"
-						WINEPREFIX="$prefix" WINEDEBUG="-all" wine start "$shortcut" 2> /dev/null
-					elif [ -f "$path" ]; then
-						if [ $path != ${path%shortcut} ]; then
-							local shortcut
-							read -r shortcut < "$path"
-							WINEPREFIX="$prefix" WINEDEBUG="-all" wine start "$shortcut" 2> /dev/null
-						else
-							WINEPREFIX="$prefix" WINEDEBUG="-all" wine start /unix "$path" 2> /dev/null
-						fi
+						read -r executable < "$path/default.shortcut"
 					else
 						printf "bottle start %s: no such file or directory\n" "$path"
 					fi
+					WINEPREFIX="$prefix" WINEDEBUG="-all" wine start "$executable" 2> /dev/null
+					;;
+				install)
+					if [ "$#" -lt 3 ]; then
+						printf "bottle install %s: missing operand\n" "$path"
+						return 1
+					fi
+					WINEPREFIX="$prefix" winetricks "$3"
 					;;
 				config)
 					WINEPREFIX="$prefix" WINEDEBUG="-all" winecfg 2> /dev/null
