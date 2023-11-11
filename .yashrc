@@ -216,14 +216,35 @@ agenda() {
 }
 
 bottle() {
-	if [ "$#" -lt 2 ]; then
-		printf "bottle: missing operand\n"
+	if [ -z "$1" ]; then
+		printf "bottle: missing command\n"
 		return 1
 	fi
 	local command
 	command="$1"
+	shift
+	local debug
+	debug="-all"
+	for option in "$@"; do
+		if [ "$option" != "${option#-}" ]; then
+			case "$option" in
+				-d|--debug) 
+					debug="warn+all"
+				;;
+				*)
+					printf "bottle %s %s: invalid option\n" "$command" "$option"
+					return 1
+			esac
+			shift
+		fi
+	done
+	if [ -z "$1" ]; then
+		printf "bottle %s: missing path\n" "$command"
+		return 1
+	fi
 	local path
-	path="$(_realpath "$2")"
+	path="$(_realpath "$1")"
+	shift
 	local prefix
 	prefix="$path/.wine"
 	case "$command" in
@@ -233,7 +254,7 @@ bottle() {
 				return 1
 			fi
 			mkdir -p "$prefix"
-			WINEPREFIX="$prefix" WINEDEBUG="-all" wineboot -i
+			WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -i
 			;;
 		config|start|stop|kill|install)
 			local root
@@ -275,7 +296,7 @@ bottle() {
 					else
 						printf "bottle start %s: no such file or directory\n" "$path"
 					fi
-					WINEPREFIX="$prefix" WINEDEBUG="-all" wine start "$executable" 2> /dev/null
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" wine start "$executable" 2> "$prefix/wine.log"
 					;;
 				install)
 					if [ "$#" -lt 3 ]; then
@@ -285,13 +306,13 @@ bottle() {
 					WINEPREFIX="$prefix" winetricks "$3"
 					;;
 				config)
-					WINEPREFIX="$prefix" WINEDEBUG="-all" winecfg 2> /dev/null
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" winecfg 2> "$prefix/wine.log"
 					;;
 				stop)
-					WINEPREFIX="$prefix" WINEDEBUG="-all" wineboot -e
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -e
 					;;
 				kill)
-					WINEPREFIX="$prefix" WINEDEBUG="-all" wineboot -ki
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -ki
 					;;
 			esac
 			;;
