@@ -217,6 +217,13 @@ agenda() {
 
 bottle() {
 	if [ -z "$1" ]; then
+		printf "bottle: missing path\n"
+		return 1
+	fi
+	local path
+	path="$(_realpath "$1")"
+	shift
+	if [ -z "$1" ]; then
 		printf "bottle: missing command\n"
 		return 1
 	fi
@@ -232,75 +239,56 @@ bottle() {
 					debug="warn+all"
 				;;
 				*)
-					printf "bottle %s %s: invalid option\n" "$command" "$option"
+					printf "bottle %s %s %s: invalid option\n" "$path" "$command" "$option"
 					return 1
 			esac
 			shift
 		fi
 	done
-	if [ -z "$1" ]; then
-		printf "bottle %s: missing path\n" "$command"
-		return 1
-	fi
-	local path
-	path="$(_realpath "$1")"
-	shift
 	local prefix
 	prefix="$path/.wine"
 	case "$command" in
 		create)
 			if [ -e "$path" ]; then
-				printf "bottle create %s: file or directory already exist\n" "$path"
+				printf "bottle %s create: file or directory already exist\n" "$path"
 				return 1
 			fi
 			mkdir -p "$prefix"
 			WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -i
 			;;
 		config|start|stop|kill|install)
-			local root
-			while true; do
-				local head
-				head="${prefix%/*}"
-				local tail
-				tail="${prefix#"$head"}"
-				if [ "$tail" = "/.wine" ]; then
-					if [ ! -f "$prefix/drive_c/windows/system32/kernel32.dll" ]; then
-						printf "bottle %s %s: invalid .wine directory\n" "$command" "$path"
-						return 1
-					fi
-					root="$head"
-					break
-				elif [ -z "$head" ]; then
-					printf "bottle %s %s: missing .wine directory\n" "$command" "$path"
-					return 1
-				fi
-				prefix="$head"
-			done
+			if [ ! -f "$prefix/drive_c/windows/system32/kernel32.dll" ]; then
+				printf "bottle %s %s: invalid path\n" "$path" "$command"
+				return 1
+			fi
 			case "$command" in
 				start)
-					local executable
-					if [ -n "$1" ]; then
-						executable="$1"
-					elif [ -f "$path" ]; then
-						if [ "$executable" = "${executable%shortcut}" ]; then
-							executable="$(WINEPREFIX="$prefix" winepath -w "$path")"
-						else
-							read -r executable < "$path"
-						fi
-					elif [ -d "$path" ]; then
-						if [ ! -f  "$path/default.shortcut" ]; then
-							printf "bottle start %s: missing default.shortcut\n" "$path"
+					local program
+					if [ -z "$1" ]; then
+						if [ ! -f "$path/default.shortcut" ]; then
+							printf "bottle %s %s: missing default.shortcut" "$path" "$command"
 							return 1
 						fi
-						read -r executable < "$path/default.shortcut"
+						program="$path/default.shortcut"
 					else
-						printf "bottle start %s: no such file or directory\n" "$path"
+						program="$1"
 					fi
-					WINEPREFIX="$prefix" WINEDEBUG="$debug" wine start "$executable" 2> "$prefix/wine.log"
+					if [ -f "$program" ]; then
+						if [ "$program" != "$program%.shortcut" ]; then
+							local shortcut
+							read -r shortcut < "$program"
+							program="$(WINEPREFIX="$prefix" winepath -u "$shortcut" 2> /dev/null)"
+						fi
+						local directory
+						directory="$(_dirname "$program")"
+						WINEPREFIX="$prefix" WINEDEBUG="$debug" wine start /d "$directory" /unix "$program" 2> "$prefix/wine.log"
+					else
+						WINEPREFIX="$prefix" WINEDEBUG="$debug" wine start "$program" 2> "$prefix/wine.log"
+					fi
 					;;
 				install)
 					if [ -z "$1" ]; then
-						printf "bottle install %s: missing operand\n" "$path"
+						printf "bottle %s install: missing operand\n" "$path"
 						return 1
 					fi
 					WINEPREFIX="$prefix" winetricks "$1"
@@ -312,12 +300,12 @@ bottle() {
 					WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -e
 					;;
 				kill)
-					WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -ki
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -k
 					;;
 			esac
 			;;
 		*)
-			printf "bottle %s %s: invalid command\n" "$command" "$path"
+			printf "bottle %s %s: invalid command\n" "$path" "$command"
 			return 1
 	esac
 }
