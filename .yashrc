@@ -133,18 +133,23 @@ _realpath() {
 }
 
 agenda() {
-	if [ "$#" -lt 2 ]; then
-		printf "agenda: missing operand\n"
+	if [ -z "$1" ]; then
+		printf "agenda: missing path\n"
+		return 1
+	fi
+	local path
+	path="$(_realpath $1)"
+	shift
+	if [ -z "$1" ]; then
+		printf "agenda: missing command\n"
 		return 1
 	fi
 	local command
 	command="$1"
-	local path
-	path="$(_realpath "$2")"
 	case "$command" in
 		create)
 			if [ -e "$path" ]; then
-				printf "agenda create %s: directory already exist\n" "$path"
+				printf "agenda %s create: file or directory already exist\n" "$path"
 				return 1
 			fi
 			temp="$(mktemp -d XXXXXXXXXXXXXXXX --tmpdir)"
@@ -169,13 +174,13 @@ agenda() {
 			;;
 		shell|edit)
 			if [ ! -d "$path" ]; then
-				printf "agenda %s %s: no such directory\n" "$command" "$path"
+				printf "agenda %s %s: no such directory\n" "$path" "$command"
 				return 1
 			elif [ ! -f "$path/identity.age" ]; then
-				printf "agenda %s %s: missing identity.age\n" "$command" "$path"
+				printf "agenda %s %s: missing identity.age\n" "$path" "$command"
 				return 1
 			elif [ ! -f "$path/protected.age" ]; then
-				printf "agenda %s %s: missing protected.age\n" "$command" "$path"
+				printf "agenda %s %s: missing protected.age\n" "$path" "$command"
 				return 1
 			fi
 			temp="$(mktemp -d XXXXXXXXXXXXXXXX --tmpdir)"
@@ -210,7 +215,7 @@ agenda() {
 			fi
 			;;
 		*)
-			printf "agenda %s %s: invalid command\n" "$command" "$path"
+			printf "agenda %s %s: invalid command\n" "$path" "$command"
 			return 1
 	esac
 }
