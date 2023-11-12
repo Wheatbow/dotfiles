@@ -138,7 +138,7 @@ agenda() {
 		return 1
 	fi
 	local path
-	path="$(_realpath $1)"
+	path="$(_realpath "$1")"
 	shift
 	local command
 	if [ -z "$1" ]; then
