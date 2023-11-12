@@ -261,7 +261,7 @@ bottle() {
 			mkdir -p "$prefix"
 			WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -i
 			;;
-		config|start|stop|kill|install)
+		config|start|stop|kill|install|log)
 			if [ ! -f "$prefix/drive_c/windows/system32/kernel32.dll" ]; then
 				printf "bottle %s %s: invalid path\n" "$path" "$command"
 				return 1
@@ -299,7 +299,7 @@ bottle() {
 					WINEPREFIX="$prefix" winetricks "$1"
 					;;
 				config)
-					WINEPREFIX="$prefix" WINEDEBUG="$debug" winecfg 2> "$prefix/wine.log"
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" winecfg 2> "$prefix/winecfg.log"
 					;;
 				stop)
 					WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -e
@@ -307,6 +307,8 @@ bottle() {
 				kill)
 					WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -k
 					;;
+				log)
+					"$EDITOR" "$prefix/wine.log"
 			esac
 			;;
 		*)
