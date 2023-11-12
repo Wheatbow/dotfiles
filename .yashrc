@@ -34,19 +34,37 @@ alias uloop="udisksctl loop-delete -b"
 alias -g hx="helix"
 
 _basename() {
-	if [ "$#" -eq 0 ]; then
+	local separator
+	separator="/"
+	for option in "$@"; do
+		if [ "${option}" != "${option#-}" ]; then
+			case "$option" in
+				-u|--unix)
+					separator="/"
+					;;
+				-w|--windows)
+					separator="\\"
+					;;
+				*)
+					printf "basename %s: invalid option" "$option"
+					return 1
+			esac
+			shift
+		fi
+	done
+	if [ -z "$1" ]; then
 		printf "basename: missing operand\n"
 		return 1
 	fi
 	for in in "$@"; do
 		while true; do
 			local head
-			head="${in%/*}"
+			head="${in%"$separator"*}"
 			local tail
 			tail="${in#"$head"}"
-			if [ "$tail" != "/" ]; then
+			if [ "$tail" != "$separator" ]; then
 				if [ -n "$tail" ]; then
-					printf "%s\n" "${tail#/}"
+					printf "%s\n" "${tail#"$separator"}"
 				else
 					printf "%s\n" "$head"
 				fi
@@ -61,25 +79,43 @@ _basename() {
 }
 
 _dirname() {
-	if [ "$#" -eq 0 ]; then
+	local separator
+	separator="/"
+		for option in "$@"; do
+		if [ "${option}" != "${option#-}" ]; then
+			case "$option" in
+				-u|--unix)
+					separator="/"
+					;;
+				-w|--windows)
+					separator="\\"
+					;;
+				*)
+					printf "dirname %s: invalid option" "$option"
+					return 1
+			esac
+			shift
+		fi
+	done
+	if [ -z "$1" ]; then
 		printf "dirname: missing operand\n"
 		return 1
 	fi
 	for in in "$@"; do
 		while true; do
 			local head
-			head="${in%/*}"
+			head="${in%"$separator"*}"
 			local tail
 			tail="${in#"$head"}"
-			if [ "$tail" != "/" ]; then
+			if [ "$tail" != "$separator" ]; then
 				if [ -z "$tail" ]; then
 					printf ".\n"
 				else
 					in="$head"
 					while true; do
-						head="${in%/*}"
+						head="${in%"$separator"*}"
 						tail="${in#"$head"}"
-						if [ "$tail" != "/" ]; then
+						if [ "$tail" != "$separator" ]; then
 							printf "%s\n" "$head$tail"
 							break
 						fi
@@ -270,28 +306,28 @@ bottle() {
 			fi
 			case "$command" in
 				start)
-					local program
+					local line
 					if [ -z "$1" ]; then
 						if [ ! -f "$path/default.shortcut" ]; then
-							printf "bottle %s %s: missing default.shortcut" "$path" "$command"
-							return 1
+							printf "bottle %s start: missing default.shortcut" "$path"
 						fi
-						program="$path/default.shortcut"
+						line="$path/default.shortcut"
 					else
-						program="$1"
+						line="$1"
 					fi
-					if [ -f "$program" ]; then
-						if [ "$program" != "${program%.shortcut}" ]; then
-							local shortcut
-							read -r shortcut < "$program"
-							program="$(WINEPREFIX="$prefix" winepath -u "$shortcut" 2> /dev/null)"
-						fi
-						local directory
-						directory="$(_dirname "$program")"
-						WINEPREFIX="$prefix" WINEDEBUG="$debug" wine start /d "$directory" /unix "$program" 2> "$prefix/wine.log"
+					if [ "$line" != "${line%.shortcut}" ]; then
+						read -r line < "$line"
+					fi
+					local directory
+					local program
+					if [ "$line" != "${line#?:\\}" ]; then
+						directory="$(_dirname -w "$line")"
+						program="$(_basename -w "$line")"
 					else
-						WINEPREFIX="$prefix" WINEDEBUG="$debug" wine start "$program" 2> "$prefix/wine.log"
+						directory="$(_realpath "$(_dirname "$line")")"
+						program="$(_basename "$line")"
 					fi
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" wine start /d "$directory" "$program" 2> "$prefix/wine.log"
 					;;
 				install)
 					if [ -z "$1" ]; then
