@@ -281,7 +281,7 @@ bottle() {
 						program="$1"
 					fi
 					if [ -f "$program" ]; then
-						if [ "$program" != "$program%.shortcut" ]; then
+						if [ "$program" != "${program%.shortcut}" ]; then
 							local shortcut
 							read -r shortcut < "$program"
 							program="$(WINEPREFIX="$prefix" winepath -u "$shortcut" 2> /dev/null)"
