@@ -10,3 +10,5 @@
 	defaultBranch = trunk
 [tag]
 	gpgsign = true
+[alias]
+	graph = !git log --graph --pretty=oneline --abbrev-commit
