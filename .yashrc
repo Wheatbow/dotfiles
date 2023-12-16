@@ -22,8 +22,8 @@ alias ls="ls -alh --color=auto --group-directories-first"
 alias du="du -h"
 alias df="df -h"
 alias free="free -m"
-alias pcpu='ps u -u "$USER" --sort=-pcpu'
-alias pmem='ps u -u "$USER" --sort=-pmem'
+alias pcpu='ps uf -u "$USER" --sort=-pcpu'
+alias pmem='ps uf -u "$USER" --sort=-pmem'
 alias paci="doas pacman -S"
 alias pacr="doas pacman -Rsn"
 alias pacu="doas pacman -Syu"
