@@ -327,7 +327,7 @@ bottle() {
 						directory="$(_realpath "$(_dirname "$line")")"
 						program="$(_basename "$line")"
 					fi
-					WINEPREFIX="$prefix" WINEDEBUG="$debug" wine start /d "$directory" "$program" 2> "$prefix/wine.log"
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" WINEFSYNC="1" wine start /d "$directory" "$program" 2> "$prefix/wine.log"
 					;;
 				install)
 					if [ -z "$1" ]; then
