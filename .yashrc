@@ -24,9 +24,6 @@ alias df="df -h"
 alias free="free -m"
 alias pcpu='ps uf -u "$USER" --sort=-pcpu'
 alias pmem='ps uf -u "$USER" --sort=-pmem'
-alias paci="doas pacman -S"
-alias pacr="doas pacman -Rsn"
-alias pacu="doas pacman -Syu"
 alias mount="udisksctl mount -b"
 alias umount="udisksctl unmount -b"
 alias loop="udisksctl loop-setup -rf"
