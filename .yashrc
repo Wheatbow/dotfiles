@@ -31,7 +31,6 @@ alias mount="udisksctl mount -b"
 alias umount="udisksctl unmount -b"
 alias loop="udisksctl loop-setup -rf"
 alias uloop="udisksctl loop-delete -b"
-alias -g hx="helix"
 
 _basename() {
 	local separator
