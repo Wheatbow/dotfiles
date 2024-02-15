@@ -2,6 +2,15 @@
 
 . /etc/profile
 
+if [ -z "$XDG_RUNTIME_DIR" ]; then
+	XDG_RUNTIME_DIR="/tmp/$(id -u)-runtime-dir"
+	export XDG_RUNTIME_DIR
+	if [ ! -d "$XDG_RUNTIME_DIR" ]; then
+		mkdir "$XDG_RUNTIME_DIR"
+		chmod 0700 "$XDG_RUNTIME_DIR"
+	fi
+fi
+
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_DATA_HOME="$HOME/.local/share"
@@ -12,13 +21,13 @@ export BROWSER="firefox"
 
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 
-/usr/bin/proptest -M i915 -D /dev/dri/card1 79 connector 81 1
-/usr/bin/proptest -M i915 -D /dev/dri/card1 87 connector 81 1
-/usr/bin/proptest -M i915 -D /dev/dri/card1 94 connector 81 1
+proptest -M i915 -D /dev/dri/card1 79 connector 81 1
+proptest -M i915 -D /dev/dri/card1 87 connector 81 1
+proptest -M i915 -D /dev/dri/card1 94 connector 81 1
 
 export MOZ_ENABLE_WAYLAND="1"
 export SDL_VIDEODRIVER="wayland"
 
-if [ -z $WAYLAND_DISPLAY ] && [ $(tty) == /dev/tty1 ]; then
-	exec sway
+if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = /dev/tty1 ]; then
+	exec dbus-run-session -- yash -c 'pipewire >/dev/null 2>&1 & sway'
 fi
