@@ -11,6 +11,7 @@ input type:keyboard {
     xkb_options "grp:sclk_toggle,caps:super,ctrl:swap_lalt_lctl,ctrl:swap_ralt_rctl"
 }
 
+xwayland disable
 default_border none
 titlebar_padding 2
 focus_follows_mouse yes
