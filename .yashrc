@@ -166,20 +166,24 @@ _realpath() {
 }
 
 agenda() {
-	if ! command -v age 1> /dev/null; then
-		printf "agenda: requires age\n"
+	if ! command -v tar 1> /dev/null; then
+		printf "agenda: needs tar to run\n"
 		return 1
 	fi
-	if ! command -v tar 1> /dev/null; then
-		printf "agenda: requires tar\n"
+	if ! command -v zstd 1> /dev/null; then
+		printf "agenda: needs zstd to run\n"
 		return 1
 	fi
 	if ! command -v git 1> /dev/null; then
-		printf "agenda: requires git\n"
+		printf "agenda: needs git to run\n"
+		return 1
+	fi
+	if ! command -v age 1> /dev/null; then
+		printf "agenda: needs age to run\n"
 		return 1
 	fi
 	if ! command -v inotifywait 1> /dev/null; then
-		printf "agenda: requires inotifywait\n"
+		printf "agenda: needs inotifywait to run\n"
 		return 1
 	fi
 	if [ -z "$1" ]; then
