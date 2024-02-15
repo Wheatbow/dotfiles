@@ -25,9 +25,6 @@ proptest -M i915 -D /dev/dri/card1 79 connector 81 1
 proptest -M i915 -D /dev/dri/card1 87 connector 81 1
 proptest -M i915 -D /dev/dri/card1 94 connector 81 1
 
-export MOZ_ENABLE_WAYLAND="1"
-export SDL_VIDEODRIVER="wayland"
-
 if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = /dev/tty1 ]; then
 	exec dbus-run-session -- yash -c 'pipewire >/dev/null 2>&1 & sway'
 fi
