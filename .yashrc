@@ -314,6 +314,7 @@ bottle() {
 			fi
 			mkdir -p "$prefix"
 			WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -i
+			WINEPREFIX="$prefix" WINEDEBUG="$debug" wine reg.exe add HKCU\\Software\\Wine\\Drivers /v Graphics /d "x11,wayland"
 			;;
 		config|start|stop|kill|install|update|log)
 			if [ ! -f "$prefix/drive_c/windows/system32/kernel32.dll" ]; then
