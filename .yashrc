@@ -28,6 +28,12 @@ alias mount="udisksctl mount -b"
 alias umount="udisksctl unmount -b"
 alias loop="udisksctl loop-setup -rf"
 alias uloop="udisksctl loop-delete -b"
+alias xi="doas xbps-install"
+alias xu="doas xbps-install -Su"
+alias xr="doas xbps-remove"
+alias xq="doas xbps-query"
+alias xa="doas xbps-alternatives"
+alias xc="doas xbps-reconfigure"
 
 _basename() {
 	local separator
