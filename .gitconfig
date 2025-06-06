@@ -1,0 +1,14 @@
+[commit]
+	verbose = true
+	gpgsign = true
+[core]
+	editor = hx
+	pager = cat
+[gpg]
+	format = ssh
+[tag]
+	gpgsign = true
+[alias]
+	graph = !git log --graph --pretty=oneline --abbrev-commit
+[init]
+    defaultBranch = main

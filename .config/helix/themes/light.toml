@@ -1,0 +1,87 @@
+"ui.background" = { bg = "white" }
+"ui.cursor" = { bg = "gray15" }
+"ui.cursor.match" = { bg = "gray10" }
+"ui.linenr" = { fg = "gray30" }
+"ui.linenr.selected" = "gray-aaa"
+"ui.statusline" = { fg = "black", bg = "gray10" }
+"ui.popup" = { bg = "gray10" }
+"ui.popup.info" = { bg = "gray10" }
+"ui.window" = { bg = "white" }
+"ui.help" = { fg = "black", bg = "white" }
+"ui.text" = { fg = "black" }
+"ui.text.focus" = { fg = "black", modifiers = ["bold"] }
+"ui.text.info" = { fg = "black" }
+"ui.virtual.whitespace" = "gray15"
+"ui.virtual.ruler" = { bg = "gray5" }
+"ui.menu" = { fg = "black", bg = "gray10" }
+"ui.menu.selected" = { fg = "black", bg = "gray15" }
+"ui.selection" = { bg = "gray10" }
+
+"attribute" = "red-aaa"
+"type" = "blue-aaa"
+"type.builtin" = "magenta-aaa"
+"constructor" = "black"
+"constant" = "gray-aaa"
+"string" = "green-aaa"
+"comment" = "gray-aaa"
+"variable" = "black"
+"label" = "black"
+"punctuation" = "gray-aaa"
+"keyword" = "red-aaa"
+"operator" = "black"
+"function" = "black"
+"function.builtin" = "black"
+"function.method" = "black"
+"tag" = "black"
+"namespace" = "black"
+"diff.plus" = "green-aaa"
+"diff.minus" = "red-aaa"
+"diff.delta" = "blue-aaa"
+"info" = "black"
+"hint" = "black"
+"warning" = "black"
+"error" = "red-aaa"
+"diagnostic" = { bg = "gray15"}
+"diagnostic.warning" = { bg = "yellow15" }
+"diagnostic.error" = { bg = "red15" }
+"markup.heading.marker" = "gray30"
+"markup.heading.1" = { fg = "red-aa", modifiers = ["bold"] }
+"markup.heading.2" = { fg = "blue-aa", modifiers = ["bold"] }
+"markup.heading.3" = { fg = "green-aa", modifiers = ["bold"] }
+"markup.heading.4" = { fg = "magenta-aa", modifiers = ["bold"] }
+"markup.heading.5" = { fg = "cyan-aa", modifiers = ["bold"] }
+"markup.heading.6" = { fg = "yellow-aa", modifiers = ["bold"] }
+"markup.list" = { fg = "gray-aaa" }
+"markup.bold" = { fg = "black", modifiers = ["bold"] }
+"markup.italic" = { fg = "black", modifiers = ["italic"] }
+"markup.link.url" = { fg = "blue-aaa", modifiers = ["underlined"]}
+"markup.link.label" = { fg = "magenta-aaa" }
+"markup.link.text" = { fg = "magenta-aaa" }
+"markup.quote" = { fg = "green-aaa" }
+"markup.raw" = { fg = "gray-aaa" }
+
+[palette]
+white       = "#ffffff"
+black       = "#000000"
+gray5       = "#f7f7f7"
+gray10      = "#f2f2f2"
+gray15      = "#d1d1d1"
+gray20      = "#b5b5b5"
+gray25      = "#a3a3a3"
+gray30      = "#949494"
+yellow15    = "#ffffd1"
+red15       = "#ffd1d1"
+green-aa    = "#008A00"
+green-aaa   = "#006600"
+blue-aa     = "#6161ff"
+blue-aaa    = "#2e2eff"
+red-aa      = "#eb0000"
+red-aaa     = "#b30000"
+magenta-aa  = "#d100d1"
+magenta-aaa = "#9e009e"
+yellow-aa   = "#7a7a00"
+yellow-aaa  = "#5c5c00"
+cyan-aa     = "#008080"
+cyan-aaa    = "#006161"
+gray-aa     = "#757575"
+gray-aaa    = "#595959"

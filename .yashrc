@@ -1,0 +1,468 @@
+#!/bin/sh
+#shellcheck disable=SC3043
+
+export PS1
+PS1='${${?:/0/\\fg}/#[1-9]/\\fr}${$(pwd)/~/\~}\$ '
+
+export YASH_AFTER_CD='ls -alh --color=auto --group-directories-first'
+
+_autocd() {
+	if [ -d "$1" ]; then
+		export HANDLED=true
+  	cd -- "$@" || return
+	fi
+}
+export COMMAND_NOT_FOUND_HANDLER='_autocd "$@"'
+
+alias mkdir="mkdir -p"
+alias rm="rm -Ir"
+alias cp="cp -i"
+alias mv="mv -i"
+alias ls="ls -alh --color=auto --group-directories-first"
+alias du="du -h"
+alias df="df -h"
+alias free="free -m"
+alias pcpu='ps uf -u "$USER" --sort=-pcpu'
+alias pmem='ps uf -u "$USER" --sort=-pmem'
+alias mount="udisksctl mount -b"
+alias umount="udisksctl unmount -b"
+alias loop="udisksctl loop-setup -rf"
+alias uloop="udisksctl loop-delete -b"
+alias xi="doas xbps-install"
+alias xu="doas xbps-install -Su"
+alias xr="doas xbps-remove"
+alias xq="doas xbps-query"
+alias xa="doas xbps-alternatives"
+alias xc="doas xbps-reconfigure"
+
+_basename() {
+	local separator
+	separator="/"
+	for option in "$@"; do
+		if [ "${option}" != "${option#-}" ]; then
+			case "$option" in
+				-u|--unix)
+					separator="/"
+					;;
+				-w|--windows)
+					separator="\\"
+					;;
+				*)
+					printf "basename %s: invalid option" "$option"
+					return 1
+			esac
+			shift
+		fi
+	done
+	if [ -z "$1" ]; then
+		printf "basename: missing operand\n"
+		return 1
+	fi
+	for in in "$@"; do
+		while true; do
+			local head
+			head="${in%"$separator"*}"
+			local tail
+			tail="${in#"$head"}"
+			if [ "$tail" != "$separator" ]; then
+				if [ -n "$tail" ]; then
+					printf "%s\n" "${tail#"$separator"}"
+				else
+					printf "%s\n" "$head"
+				fi
+				break
+			elif [ -z "$head" ]; then
+				printf "%s\n" "$tail"
+				break
+			fi
+			in="$head"
+		done
+	done
+}
+
+_dirname() {
+	local separator
+	separator="/"
+		for option in "$@"; do
+		if [ "${option}" != "${option#-}" ]; then
+			case "$option" in
+				-u|--unix)
+					separator="/"
+					;;
+				-w|--windows)
+					separator="\\"
+					;;
+				*)
+					printf "dirname %s: invalid option" "$option"
+					return 1
+			esac
+			shift
+		fi
+	done
+	if [ -z "$1" ]; then
+		printf "dirname: missing operand\n"
+		return 1
+	fi
+	for in in "$@"; do
+		while true; do
+			local head
+			head="${in%"$separator"*}"
+			local tail
+			tail="${in#"$head"}"
+			if [ "$tail" != "$separator" ]; then
+				if [ -z "$tail" ]; then
+					printf ".\n"
+				else
+					in="$head"
+					while true; do
+						head="${in%"$separator"*}"
+						tail="${in#"$head"}"
+						if [ "$tail" != "$separator" ]; then
+							printf "%s\n" "$head$tail"
+							break
+						fi
+						in="$head"
+					done
+					break
+				fi
+				break
+			elif [ -z "$head" ]; then
+				printf "%s\n" "$tail"
+				break
+			fi
+			in="$head"
+		done
+	done
+}
+
+_realpath() {
+	if [ "$#" -eq 0 ]; then
+		printf "realpath: missing operand\n"
+		return 1
+	fi
+	for in in "$@"; do
+		local out
+		local component
+		component="${in%/"${in#*/}"}"
+		if [ -n "$component" ]; then
+			out="$(pwd)"
+		else
+			out=
+  	fi
+		while true; do
+			if [ -n "$component" ] && [ "$component" != '.' ]; then
+				if [ "$component" = '..' ]; then
+					out="${out%/*}"
+				else
+					out="$out/$component"
+				fi
+			fi
+			in="${in#*/}"
+			if [ "$in" = "$component" ]; then
+				if [ -n "$out" ]; then
+					printf "%s\n" "$out"
+				else
+					printf "/\n"
+				fi
+				break
+			fi
+			component="${in%/"${in#*/}"}"
+		done
+	done
+}
+
+_mktemp() {
+	local directory
+	directory=0
+	for option in "$@"; do
+		if [ "$option" != "${option#-}" ]; then
+			case "$option" in
+				-d|--directory)
+					directory=1
+				  ;;
+				*)
+				  printf "mktemp %s: invalid option\n" "$option"
+					return 1
+			esac
+			shift
+		fi
+	done
+	local prefix
+	if [ -z "$1" ]; then
+		prefix="tmp"
+	else
+		prefix="$1"
+	fi
+	local target
+	while true; do
+		local suffix
+		suffix="$(hexdump -e '"%02x" 8 ""' -n 8 /dev/random)"
+		target="/tmp/$prefix.$suffix"
+		if ! [ -e "$target" ]; then
+			break
+		fi
+	done
+	if [ "$directory" -eq 0 ]; then
+		true > "$target"
+	else
+		mkdir "$target"
+	fi
+	printf "%s\n" "$target"
+}
+
+_checkdepends() {
+	local message
+	message="$1"
+	shift
+	for i in "$@"; do
+		if ! command -v "$i" 1> /dev/null; then
+			# shellcheck disable=SC2059
+			printf "$message" "$i"
+			return 1
+		fi
+	done
+}
+
+act() {
+	if ! _checkdepends "act: needs %s to run\n" "hexdump" "tar" "age" "inotifywait" "git" "rsync"; then
+		return 1
+	fi
+	local command
+	command="edit"
+	for option in "$@"; do
+		if [ "$option" != "${option#-}" ]; then
+			case "$option" in
+				--init)
+					command="init"
+				;;
+				-s|--shell)
+					command="shell"
+				;;
+				-e|--edit)
+					command="edit"
+				;;
+				*)
+					printf "act %s: unrecognized option\n" "$option"
+					return 1
+			esac
+			shift
+		fi
+	done
+	if [ -z "$1" ]; then
+		printf "act: missing path\n"
+		return 1
+	fi
+	local path
+	path="$(_realpath "$1")"
+	shift
+	case "$command" in
+		init)
+			if [ -e "$path" ]; then
+				printf "act %s create: file or directory already exist\n" "$path"
+				return 1
+			fi
+			temp="$(_mktemp -d act)"
+			trap 'rm -rf "$temp"' EXIT
+			local identity
+			IFS="" identity="$(age-keygen 2> /dev/null)"
+			local recipient
+			recipient="$(echo "$identity" | age-keygen -y)"
+			printf "Choose a password for protecting your files.\n"
+			if ! echo "$identity" | age -e -p -o "$temp/identity.age"; then
+				rm -rf "$temp"
+				return 1
+			fi
+			unset identity
+			mkdir -p "$temp/protected/content"
+			echo "$recipient" > "$temp/protected/recipient"
+			echo "0" > "$temp/protected/version"
+			tar -c --zstd -C "$temp/protected" . | age -e -r "$recipient" -o "$temp/protected.age"
+			mkdir -p "$path"
+			cp "$temp/identity.age" "$temp/protected.age" "$path"
+			rm -rf "$temp"
+			git -C "$path" init
+			;;
+		shell|edit)
+			if [ ! -d "$path" ]; then
+				printf "act %s %s: no such directory\n" "$path" "$command"
+				return 1
+			elif [ ! -f "$path/identity.age" ]; then
+				printf "act %s %s: missing identity.age\n" "$path" "$command"
+				return 1
+			elif [ ! -f "$path/protected.age" ]; then
+				printf "act %s %s: missing protected.age\n" "$path" "$command"
+				return 1
+			fi
+			temp="$(mktemp -d XXXXXXXXXXXXXXXX --tmpdir)"
+			trap 'rm -rf "$temp"' EXIT
+			mkdir "$temp/protected"
+			if ! age -d -i "$path/identity.age" "$path/protected.age" | tar -x --zstd -C "$temp/protected"; then
+				rm -rf "$temp"
+				return 1
+			fi
+		  cp -axr "$temp/protected" "$temp/protected.copy"
+			local pipe
+			pipe="$temp/pipe"
+			mkfifo "$pipe"
+			inotifywait -m -q -r -e create -e delete -e modify -e move -o "$pipe" "$temp/protected/content" &
+			local pid
+			pid=$!
+			{ while read -r _event; do
+				  rsync -qaxr --delete "$temp/protected/" "$temp/protected.copy"
+					tar -c --zstd -C "$temp/protected.copy" . | age -e -R "$temp/protected.copy/recipient" -o "$path/protected.age"
+			  done < "$pipe" 
+			} &
+			case "$command" in
+				edit) "$EDITOR" "$temp/protected/content" ;;
+				shell) yash -c "cd $temp/protected/content;$SHELL" ;;
+			esac
+			kill "$pid"
+			wait 1> /dev/null
+			rm -rf "$temp"
+			if [ -n "$(git -C "$path" status --porcelain)" ]; then
+				git -C "$path" add --all || return
+				printf "Committing changes...\n"
+				git -C "$path" commit --allow-empty-message --no-edit || return
+				printf "Pushing changes...\n"
+				git -C "$path" push || return
+			fi
+			;;
+		*)
+			printf "act %s %s: invalid command\n" "$path" "$command"
+			return 1
+	esac
+}
+
+bottle() {
+	if ! _checkdepends "bottle: needs %s to run\n" "wine" "winetricks" "gamemoderun"; then
+		return 1
+	fi
+	local command
+	command="start"
+	local debug
+	debug="-all"
+	for option in "$@"; do
+		if [ "$option" != "${option#-}" ]; then
+			case "$option" in
+				--init)
+					command="init"
+				;;
+				--start)
+					command="start"
+				;;
+				--stop)
+					command="stop"
+				;;
+				-k|--kill)
+					command="kill"
+				;;
+				-c|--config)
+					command="config"
+				;;
+				-i|--install)
+					command="install"
+				;;
+				-u|--update)
+					command="update"
+				;;
+				--console)
+				 	command="console"
+				;;
+				-r|--regedit)
+				  command="regedit"
+				;;
+				-d|--debug)
+					debug="warn+all"
+				;;
+				*)
+					printf "bottle %s: unrecognized option\n" "$option"
+					return 1
+			esac
+			shift
+		fi
+	done
+	if [ -z "$1" ]; then
+		printf "bottle: missing path\n"
+		return 1
+	fi
+	local path
+	path="$(_realpath "$1")"
+	shift
+	local prefix
+	prefix="$path/.wine"
+	case "$command" in
+		init)
+			if [ -e "$path" ]; then
+				printf "bottle --init %s: file or directory already exist\n" "$path"
+				return 1
+			fi
+			mkdir -p "$prefix"
+			WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -i
+			WINEPREFIX="$prefix" WINEDEBUG="$debug" wine reg.exe add HKCU\\Software\\Wine\\Drivers /v Graphics /d "x11,wayland"
+			;;
+		config|start|stop|kill|install|update|console|regedit)
+			if [ ! -f "$prefix/drive_c/windows/system32/kernel32.dll" ]; then
+				printf "bottle --%s %s: invalid path\n" "$command" "$path"
+				return 1
+			fi
+			case "$command" in
+				start)
+					local target
+					local argument
+					if [ -z "$1" ]; then
+						if [ ! -f "$path/default.shortcut" ]; then
+							printf "bottle --start %s: missing default.shortcut" "$path"
+							return 1
+						fi
+						target="$path/default.shortcut"
+					elif [ -f "$1" ]; then
+						target="$1"
+						argument="$2"
+					else
+						printf "bottle --start %s %s: no such file\n" "$path" "$1"
+						return 1
+					fi
+					if [ "$target" != "${target%.shortcut}" ]; then
+						while read -r line; do
+							target="$line"
+							read -r argument
+						done < "$target"
+					fi
+					local directory
+					local program
+					if [ "$target" != "${target#?:\\}" ]; then
+						directory="$(_dirname -w "$target")"
+						program="$(_basename -w "$target")"
+					else
+						directory="$(_realpath "$(_dirname "$target")")"
+						program="$(_basename "$target")"
+					fi
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" WINEFSYNC="1" gamemoderun wine start /d "$directory" "$program" "$argument" 2> "$prefix/wine.log"
+					;;
+				install)
+					if [ -z "$1" ]; then
+						printf "bottle --install %s: missing operand\n" "$path"
+						return 1
+					fi
+					WINEPREFIX="$prefix" winetricks "$1"
+					;;
+				config)
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" winecfg 2> "$prefix/winecfg.log"
+					;;
+				stop)
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -e
+					;;
+				kill)
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -k
+					;;
+				update)
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -u
+					;;
+				console)
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" wine start /d "C:\\" cmd 2> "$prefix/wineconsole.log"
+					;;
+				regedit)
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" wine regedit 2> "$prefix/wine.log"
+			esac
+	esac
+}

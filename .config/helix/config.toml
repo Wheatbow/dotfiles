@@ -1,0 +1,11 @@
+theme = "light"
+
+[editor]
+true-color = true
+rulers = [81]
+text-width = 80
+shell = ["yash", "-c"]
+[editor.soft-wrap]
+enable = true
+wrap-at-text-width = true
+wrap-indicator = ""
