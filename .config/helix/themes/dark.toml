@@ -1,0 +1,77 @@
+"ui.background" = { bg = "black" }
+"ui.cursor" = { bg = "gray15" }
+"ui.cursor.match" = { bg = "gray15" }
+"ui.linenr" = { fg = "gray20" }
+"ui.linenr.selected" = "gray15"
+"ui.statusline" = { fg = "gray15", bg = "gray30" }
+"ui.popup" = { bg = "gray30" }
+"ui.popup.info" = { bg = "gray30" }
+"ui.window" = { bg = "white" }
+"ui.help" = { fg = "black", bg = "white" }
+"ui.text" = { fg = "white" }
+"ui.text.focus" = { fg = "white", modifiers = ["bold"] }
+"ui.text.info" = { fg = "white" }
+"ui.virtual.whitespace" = "gray15"
+"ui.virtual.ruler" = { bg = "gray30" }
+"ui.menu" = { fg = "white", bg = "gray30" }
+"ui.menu.selected" = { fg = "black", bg = "gray15" }
+"ui.selection" = { bg = "gray10" }
+
+"attribute" = "magenta"
+"type" = "cyan"
+"type.builtin" = "cyan"
+"constructor" = "white"
+"constant" = "blue"
+"string" = "green"
+"comment" = "gray15"
+"variable" = "white"
+"label" = "white"
+"punctuation" = "white"
+"keyword" = "red"
+"operator" = "white"
+"function" = "yellow"
+"function.builtin" = "yellow"
+"function.method" = "yellow"
+"tag" = "white"
+"namespace" = "white"
+"diff.plus" = "green"
+"diff.minus" = "red"
+"diff.delta" = "blue"
+"info" = "white"
+"hint" = "white"
+"warning" = "yellow"
+"error" = "red"
+"diagnostic" = { bg = "grey30"}
+"diagnostic.warning" = { fg = "black", bg = "yellow" }
+"diagnostic.error" = { fg = "black", bg = "red" }
+"markup.heading.marker" = "gray20"
+"markup.heading.1" = { fg = "red", modifiers = ["bold"] }
+"markup.heading.2" = { fg = "blue", modifiers = ["bold"] }
+"markup.heading.3" = { fg = "yellow", modifiers = ["bold"] }
+"markup.heading.4" = { fg = "magenta", modifiers = ["bold"] }
+"markup.heading.5" = { fg = "green", modifiers = ["bold"] }
+"markup.heading.6" = { fg = "cyan", modifiers = ["bold"] }
+"markup.list" = { fg = "gray30" }
+"markup.bold" = { fg = "white", modifiers = ["bold"] }
+"markup.italic" = { fg = "white", modifiers = ["italic"] }
+"markup.link.url" = { fg = "blue", modifiers = ["underlined"]}
+"markup.link.label" = { fg = "cyan" }
+"markup.link.text" = { fg = "cyan" }
+"markup.quote" = { fg = "green" }
+"markup.raw" = { fg = "grey20" }
+
+[palette]
+black       = "#111317"
+white       = "#fefffe"
+gray5       = "#e5e4e5"
+gray10      = "#d1d0d2"
+gray15      = "#aaa8ac"
+gray20      = "#747178"
+gray25      = "#4a4a52"
+gray30      = "#20242a"
+red         = "#ff007b"
+blue        = "#007bff"
+yellow      = "#ffcc00"
+green       = "#00ffcc"
+magenta     = "#ff00ff"
+cyan        = "#00ccff"
