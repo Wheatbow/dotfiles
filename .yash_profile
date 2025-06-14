@@ -1,9 +1,15 @@
 #!/bin/sh
+#shellcheck disable=SC3043
 
-. /etc/profile
+unset PREFIX
+
+local __PREFIX
+__PREFIX="$TERMUX__PREFIX"
+
+. "$__PREFIX/etc/profile"
 
 if [ -z "$XDG_RUNTIME_DIR" ]; then
-	XDG_RUNTIME_DIR="/tmp/$(id -u)-runtime-dir"
+	XDG_RUNTIME_DIR="/$TMPDIR/$(id -u)-runtime-dir"
 	export XDG_RUNTIME_DIR
 	if [ ! -d "$XDG_RUNTIME_DIR" ]; then
 		mkdir "$XDG_RUNTIME_DIR"
@@ -19,15 +25,8 @@ export XDG_STATE_HOME="$HOME/.local/state"
 export EDITOR="hx"
 export BROWSER="firefox"
 
-export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+export SSH_AUTH_SOCK="$__PREFIX/var/run/ssh-agent.socket"
+
 export BUN_INSTALL="$HOME/.bun"
 
 export PATH="$BUN_INSTALL/bin:$PATH"
-
-proptest -M i915 -D /dev/dri/card0 83 connector 85 1
-proptest -M i915 -D /dev/dri/card0 91 connector 85 1
-proptest -M i915 -D /dev/dri/card0 98 connector 85 1
-
-if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = /dev/tty1 ]; then
-	exec dbus-run-session -- yash -c 'pipewire >/dev/null 2>&1 & sway'
-fi
