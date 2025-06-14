@@ -3,6 +3,9 @@
 !/.gitconfig
 !/.yash_profile
 !/.yashrc
+!/.hushlogin
+!/.termux/
+!/.termux/termux.properties
 !/.config/
 !/.config/user-dirs.dirs
 !/.config/helix/
