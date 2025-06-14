@@ -1,21 +1,24 @@
 #!/bin/sh
 #shellcheck disable=SC3043
 
-unset PREFIX
-
 local __PREFIX
 __PREFIX="$TERMUX__PREFIX"
 
 . "$__PREFIX/etc/profile"
 
+# Workaround: PREFIX set by Termux interferes with some commands
+unset PREFIX
+
 if [ -z "$XDG_RUNTIME_DIR" ]; then
-	XDG_RUNTIME_DIR="/$TMPDIR/$(id -u)-runtime-dir"
+	XDG_RUNTIME_DIR="$TMPDIR/$(id -u)-runtime-dir"
 	export XDG_RUNTIME_DIR
 	if [ ! -d "$XDG_RUNTIME_DIR" ]; then
 		mkdir "$XDG_RUNTIME_DIR"
 		chmod 0700 "$XDG_RUNTIME_DIR"
 	fi
 fi
+
+export SSH_AUTH_SOCK="$__PREFIX/var/run/ssh-agent.socket"
 
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
@@ -24,8 +27,6 @@ export XDG_STATE_HOME="$HOME/.local/state"
 
 export EDITOR="hx"
 export BROWSER="firefox"
-
-export SSH_AUTH_SOCK="$__PREFIX/var/run/ssh-agent.socket"
 
 export BUN_INSTALL="$HOME/.bun"
 
