@@ -4,8 +4,6 @@
 local __PREFIX
 __PREFIX="$TERMUX__PREFIX"
 
-. "$__PREFIX/etc/profile"
-
 # Workaround: PREFIX set by Termux interferes with some commands
 unset PREFIX
 
