@@ -224,12 +224,8 @@ _checkdepends() {
 	done
 }
 
-plan() {
-	
-}
-
-act() {
-	if ! _checkdepends "act: needs %s to run\n" "hexdump" "tar" "age" "inotifywait" "git" "rsync"; then
+plot() {
+	if ! _checkdepends "plot: needs %s to run\n" "hexdump" "tar" "age" "inotifywait" "git" "rsync"; then
 		return 1
 	fi
 	local command
@@ -247,14 +243,14 @@ act() {
 					command="edit"
 				;;
 				*)
-					printf "act %s: unrecognized option\n" "$option"
+					printf "plot %s: unrecognized option\n" "$option"
 					return 1
 			esac
 			shift
 		fi
 	done
 	if [ -z "$1" ]; then
-		printf "act: missing path\n"
+		printf "plot: missing path\n"
 		return 1
 	fi
 	local path
@@ -263,7 +259,7 @@ act() {
 	case "$command" in
 		init)
 			if [ -e "$path" ]; then
-				printf "act %s create: file or directory already exist\n" "$path"
+				printf "plot %s create: file or directory already exist\n" "$path"
 				return 1
 			fi
 			temp="$(_mktemp -d act)"
@@ -289,16 +285,16 @@ act() {
 			;;
 		shell|edit)
 			if [ ! -d "$path" ]; then
-				printf "act %s %s: no such directory\n" "$path" "$command"
+				printf "plot %s %s: no such directory\n" "$path" "$command"
 				return 1
 			elif [ ! -f "$path/identity.age" ]; then
-				printf "act %s %s: missing identity.age\n" "$path" "$command"
+				printf "plot %s %s: missing identity.age\n" "$path" "$command"
 				return 1
 			elif [ ! -f "$path/protected.age" ]; then
-				printf "act %s %s: missing protected.age\n" "$path" "$command"
+				printf "plot %s %s: missing protected.age\n" "$path" "$command"
 				return 1
 			fi
-			temp="$(mktemp -d XXXXXXXXXXXXXXXX --tmpdir)"
+			temp="$(_mktemp -d XXXXXXXXXXXXXXXX)"
 			trap 'rm -rf "$temp"' EXIT
 			mkdir "$temp/protected"
 			if ! age -d -i "$path/identity.age" "$path/protected.age" | tar -x --zstd -C "$temp/protected"; then
@@ -333,7 +329,7 @@ act() {
 			fi
 			;;
 		*)
-			printf "act %s %s: invalid command\n" "$path" "$command"
+			printf "plot %s %s: invalid command\n" "$path" "$command"
 			return 1
 	esac
 }
