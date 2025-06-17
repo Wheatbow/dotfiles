@@ -30,6 +30,12 @@ alias pq='pkg search'
 alias pc='pkg clean'
 alias pl='pkg list-installed'
 
+alias tx='termux-x11 :0 -xstartup "dbus-launch --exit-with-session dwm"'
+alias tx1='tx -dpi 96'
+alias tx2='tx -dpi 192'
+alias tx3='tx -dpi 288'
+alias tx4='tx -dpi 384'
+
 _basename() {
 	local separator
 	separator="/"
@@ -216,6 +222,10 @@ _checkdepends() {
 			return 1
 		fi
 	done
+}
+
+plan() {
+	
 }
 
 act() {
