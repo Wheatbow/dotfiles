@@ -7,6 +7,14 @@ __PREFIX="$TERMUX__PREFIX"
 # Workaround: PREFIX set by Termux interferes with some commands
 unset PREFIX
 
+# Workaround: OpenCL libraries on Adreno devices needs to be copied and LD_LIBRARY_PATH must be set
+if [ -f "/system/vendor/lib64/libOpenCL_adreno.so" ]; then
+  export LD_LIBRARY_PATH="$__PREFIX/opt/vendor/lib"
+  mkdir -p "$LD_LIBRARY_PATH"
+	cp "/system/vendor/lib64/libOpenCL.so" "$LD_LIBRARY_PATH"
+  cp "/system/vendor/lib64/libOpenCL_adreno.so" "$LD_LIBRARY_PATH"
+fi
+
 if [ -z "$XDG_RUNTIME_DIR" ]; then
 	XDG_RUNTIME_DIR="$TMPDIR/$(id -u)-runtime-dir"
 	export XDG_RUNTIME_DIR
@@ -29,3 +37,5 @@ export BROWSER="firefox"
 export BUN_INSTALL="$HOME/.bun"
 
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+export GGML_VK_FORCE_MAX_ALLOCATION_SIZE="2147483646"
