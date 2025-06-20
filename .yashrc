@@ -334,8 +334,14 @@ plot() {
 	esac
 }
 
-bottle() {
-	if ! _checkdepends "bottle: needs %s to run\n" "wine" "winetricks" "gamemoderun"; then
+vint() {
+  local wine
+	if command -v "hangover-wine" 1> /dev/null; then
+		wine="hangover-wine"
+	elif command -v "wine" 1> /dev/null; then
+	  wine="wine"
+	else
+	  printf "vint: needs wine or hangover-wine to run\n"
 		return 1
 	fi
 	local command
@@ -376,14 +382,14 @@ bottle() {
 					debug="warn+all"
 				;;
 				*)
-					printf "bottle %s: unrecognized option\n" "$option"
+					printf "vint %s: unrecognized option\n" "$option"
 					return 1
 			esac
 			shift
 		fi
 	done
 	if [ -z "$1" ]; then
-		printf "bottle: missing path\n"
+		printf "vint: missing path\n"
 		return 1
 	fi
 	local path
@@ -394,16 +400,16 @@ bottle() {
 	case "$command" in
 		init)
 			if [ -e "$path" ]; then
-				printf "bottle --init %s: file or directory already exist\n" "$path"
+				printf "vint --init %s: file or directory already exist\n" "$path"
 				return 1
 			fi
 			mkdir -p "$prefix"
-			WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -i
-			WINEPREFIX="$prefix" WINEDEBUG="$debug" wine reg.exe add HKCU\\Software\\Wine\\Drivers /v Graphics /d "x11,wayland"
+			WINEPREFIX="$prefix" WINEDEBUG="$debug" "$wine" wineboot -i
+			WINEPREFIX="$prefix" WINEDEBUG="$debug" "$wine" reg.exe add HKCU\\Software\\Wine\\Drivers /v Graphics /d "x11,wayland"
 			;;
 		config|start|stop|kill|install|update|console|regedit)
 			if [ ! -f "$prefix/drive_c/windows/system32/kernel32.dll" ]; then
-				printf "bottle --%s %s: invalid path\n" "$command" "$path"
+				printf "vint --%s %s: invalid path\n" "$command" "$path"
 				return 1
 			fi
 			case "$command" in
@@ -412,7 +418,7 @@ bottle() {
 					local argument
 					if [ -z "$1" ]; then
 						if [ ! -f "$path/default.shortcut" ]; then
-							printf "bottle --start %s: missing default.shortcut" "$path"
+							printf "vint --start %s: missing default.shortcut" "$path"
 							return 1
 						fi
 						target="$path/default.shortcut"
@@ -420,7 +426,7 @@ bottle() {
 						target="$1"
 						argument="$2"
 					else
-						printf "bottle --start %s %s: no such file\n" "$path" "$1"
+						printf "vint --start %s %s: no such file\n" "$path" "$1"
 						return 1
 					fi
 					if [ "$target" != "${target%.shortcut}" ]; then
@@ -438,32 +444,37 @@ bottle() {
 						directory="$(_realpath "$(_dirname "$target")")"
 						program="$(_basename "$target")"
 					fi
-					WINEPREFIX="$prefix" WINEDEBUG="$debug" WINEFSYNC="1" gamemoderun wine start /d "$directory" "$program" "$argument" 2> "$prefix/wine.log"
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" WINEFSYNC="1" "$wine" start /d "$directory" "$program" "$argument" 2> "$prefix/wine.log"
 					;;
 				install)
 					if [ -z "$1" ]; then
-						printf "bottle --install %s: missing operand\n" "$path"
+						printf "vint --install %s: missing operand\n" "$path"
 						return 1
 					fi
-					WINEPREFIX="$prefix" winetricks "$1"
+				  if ! command -v "winetricks" 1> /dev/null; then
+				  	printf "vint --install: needs winetricks to run\n"
+				  	return 1
+				  fi 
+					WINEPREFIX="$prefix"
+					winetricks "$1"
 					;;
 				config)
-					WINEPREFIX="$prefix" WINEDEBUG="$debug" winecfg 2> "$prefix/winecfg.log"
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" "$wine" winecfg 2> "$prefix/winecfg.log"
 					;;
 				stop)
-					WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -e
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" "$wine" wineboot -e
 					;;
 				kill)
-					WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -k
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" "$wine" wineboot -k
 					;;
 				update)
-					WINEPREFIX="$prefix" WINEDEBUG="$debug" wineboot -u
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" "$wine" wineboot -u
 					;;
 				console)
-					WINEPREFIX="$prefix" WINEDEBUG="$debug" wine start /d "C:\\" cmd 2> "$prefix/wineconsole.log"
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" "$wine" start /d "C:\\" cmd 2> "$prefix/wineconsole.log"
 					;;
 				regedit)
-					WINEPREFIX="$prefix" WINEDEBUG="$debug" wine regedit 2> "$prefix/wine.log"
+					WINEPREFIX="$prefix" WINEDEBUG="$debug" "$wine" regedit 2> "$prefix/wine.log"
 			esac
 	esac
 }
