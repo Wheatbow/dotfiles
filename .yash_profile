@@ -35,7 +35,14 @@ export EDITOR="hx"
 export BROWSER="firefox"
 
 export BUN_INSTALL="$HOME/.bun"
-
 export PATH="$BUN_INSTALL/bin:$PATH"
 
+# Workaround: llama-cpp
 export GGML_VK_FORCE_MAX_ALLOCATION_SIZE="2147483646"
+
+# Workaround: hangover-wine
+if [ -f "$__PREFIX/bin/hangover-wine" ]; then
+	export PATH="$__PREFIX/opt/hangover-wine/bin:$PATH"
+fi
+export HODLL="libwow64fex.dll"
+export HODLL64="libarm64ecfex.dll"

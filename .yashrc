@@ -336,12 +336,9 @@ plot() {
 
 vint() {
   local wine
-	if command -v "hangover-wine" 1> /dev/null; then
-		wine="hangover-wine"
-	elif command -v "wine" 1> /dev/null; then
-	  wine="wine"
-	else
-	  printf "vint: needs wine or hangover-wine to run\n"
+  wine="wine"
+	if ! command -v "$wine" 1> /dev/null; then
+		printf "vint: needs wine to run\n"
 		return 1
 	fi
 	local command
