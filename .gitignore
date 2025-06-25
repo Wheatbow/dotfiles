@@ -12,6 +12,8 @@
 !/.config/helix/config.toml
 !/.config/helix/themes/
 !/.config/helix/themes/*
+!/.config/i3/
+!/.config/i3/config
 !/.config/mpv/
 !/.config/mpv/mpv.conf
 !/.config/fontconfig/
