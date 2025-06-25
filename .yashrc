@@ -20,7 +20,7 @@ alias mv="mv -i"
 alias ls="ls -Ah --color=auto --group-directories-first"
 alias du="du -h"
 alias df="df -h"
-alias free="free -m"
+alias mem="free -m"
 alias pcpu='ps uf -u "$(whoami)" --sort=-pcpu'
 alias pmem='ps uf -u "$(whoami)" --sort=-pmem'
 alias pi='pkg install'
@@ -30,6 +30,15 @@ alias pq='pkg search'
 alias pc='pkg clean'
 alias pl='pkg list-installed'
 alias x='termux-x11 :0 -xstartup "dbus-launch --exit-with-session i3" -dpi 288'
+
+disk() {
+	if [ -d "/storage/emulated" ]; then
+		df "/storage/emulated"
+	else
+	  df "/"
+	fi
+}
+
 _basename() {
 	local separator
 	separator="/"
