@@ -5,7 +5,12 @@ local __PREFIX
 __PREFIX="$TERMUX__PREFIX"
 
 export PS1
-PS1='${${?:/0/\\fg}/#[1-9]/\\fr}${$(pwd)/~/\~}\$ '
+local __PS1__OS
+__PS1__OS='\$'
+if [ $(uname -o) == "GNU/Linux" ]; then
+  __PS1__OS='!'
+fi
+PS1='${${?:/0/\\fg}/#[1-9]/\\fr}${$(pwd)/~/\~}$__PS1__OS '
 
 export YASH_AFTER_CD='ls -Ah --color=auto --group-directories-first'
 _autocd() {
@@ -32,6 +37,8 @@ alias pr='pkg uninstall'
 alias pq='pkg search'
 alias pc='pkg clean'
 alias pl='pkg list-installed'
+
+alias void='proot-distro login --user ed void'
 
 alias wm='termux-x11 :0 -xstartup "dbus-launch --exit-with-session i3" -dpi 288'
 
