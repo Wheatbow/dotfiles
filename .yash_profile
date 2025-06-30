@@ -34,13 +34,13 @@ export XDG_STATE_HOME="$HOME/.local/state"
 export EDITOR="hx"
 export BROWSER="firefox"
 
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
+# nodejs
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 
-# Workaround: llama-cpp
+# llama-cpp
 export GGML_VK_FORCE_MAX_ALLOCATION_SIZE="2147483646"
 
-# Workaround: hangover-wine
+# hangover-wine
 if [ -f "$__PREFIX/bin/hangover-wine" ]; then
 	export PATH="$__PREFIX/opt/hangover-wine/bin:$PATH"
 fi
