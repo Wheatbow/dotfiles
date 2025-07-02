@@ -5,7 +5,11 @@ true-color = true
 rulers = [81]
 text-width = 80
 shell = ["yash", "-c"]
+[editor.lsp]
+auto-signature-help = false
 [editor.soft-wrap]
 enable = true
 wrap-at-text-width = true
 wrap-indicator = ""
+[keys.insert]
+C-p = "signature_help"
