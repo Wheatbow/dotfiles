@@ -52,7 +52,29 @@ alias void='proot-distro login --user ed void'
 
 alias void_x64='proot-distro login --user ed void_x64'
 
-alias wm='termux-x11 :0 -xstartup "dbus-launch --exit-with-session i3" -dpi 288'
+_wm() {
+	local dpi
+	dpi="$1"
+	case "$dpi" in
+		96)
+		  ln -sf ~/.Xresources96 ~/.Xresources
+		  ;;
+		192)
+		  ln -sf ~/.Xresources192 ~/.Xresources
+		  ;;
+		288)
+		  ln -sf ~/.Xresources288 ~/.Xresources
+		  ;;
+		*)
+		  printf "_wm %s: unsupported dpi" "$dpi"
+		  return 1
+	esac
+  termux-x11 :0 -xstartup "dbus-launch --exit-with-session i3" -dpi "$dpi"
+}
+
+alias wm3='_wm 96'
+alias wm2='_wm 192'
+alias wm1='_wm 288'
 
 arm64() {
 	qemu-system-aarch64 \
