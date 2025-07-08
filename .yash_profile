@@ -1,24 +1,6 @@
 #!/bin/sh
 #shellcheck disable=SC3043
 
-local __PREFIX
-if [ -n "$TERMUX__PREFIX" ]; then
-	__PREFIX="$TERMUX__PREFIX"
-else
-  __PREFIX="/"
-fi
-
-# Workaround: PREFIX set by Termux interferes with some commands
-unset PREFIX
-
-# Workaround: OpenCL libraries on Adreno devices needs to be copied and LD_LIBRARY_PATH must be set
-if [ -f "/system/vendor/lib64/libOpenCL_adreno.so" ]; then
-  export LD_LIBRARY_PATH="$__PREFIX/opt/vendor/lib"
-  mkdir -p "$LD_LIBRARY_PATH"
-	cp "/system/vendor/lib64/libOpenCL.so" "$LD_LIBRARY_PATH"
-  cp "/system/vendor/lib64/libOpenCL_adreno.so" "$LD_LIBRARY_PATH"
-fi
-
 if [ -z "$XDG_RUNTIME_DIR" ]; then
 	XDG_RUNTIME_DIR="$TMPDIR/$(id -u)-runtime-dir"
 	export XDG_RUNTIME_DIR
@@ -27,8 +9,6 @@ if [ -z "$XDG_RUNTIME_DIR" ]; then
 		chmod 0700 "$XDG_RUNTIME_DIR"
 	fi
 fi
-
-export SSH_AUTH_SOCK="$__PREFIX/var/run/ssh-agent.socket"
 
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
@@ -44,12 +24,31 @@ export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 # llama-cpp
 export GGML_VK_FORCE_MAX_ALLOCATION_SIZE="2147483646"
 
-# hangover-wine
-if [ -f "$__PREFIX/bin/hangover-wine" ]; then
-	export PATH="$__PREFIX/opt/hangover-wine/bin:$PATH"
-fi
-export HODLL="libwow64fex.dll"
-export HODLL64="libarm64ecfex.dll"
+# Termux
+if [ -n "$TERMUX__PREFIX" ]; then
 
-# node-gyp
-export GYP_DEFINES="android_ndk_path=''"
+	# Workaround: PREFIX set by Termux interferes with some commands
+	unset PREFIX
+
+	# Workaround: OpenCL libraries on Adreno devices need to be copied and LD_LIBRARY_PATH must be set
+	if [ -f "/system/vendor/lib64/libOpenCL_adreno.so" ]; then
+  	export LD_LIBRARY_PATH="$TERMUX__PREFIX/opt/vendor/lib"
+  	mkdir -p "$LD_LIBRARY_PATH"
+		cp "/system/vendor/lib64/libOpenCL.so" "$LD_LIBRARY_PATH"
+  	cp "/system/vendor/lib64/libOpenCL_adreno.so" "$LD_LIBRARY_PATH"
+	fi
+
+	# hangover-wine
+	if [ -f "$TERMUX__PREFIX/bin/hangover-wine" ]; then
+		export PATH="$TERMUX__PREFIX/opt/hangover-wine/bin:$PATH"
+		export HODLL="libwow64fex.dll"
+		export HODLL64="libarm64ecfex.dll"
+	fi
+
+	# node-gyp
+	export GYP_DEFINES="android_ndk_path=''"
+
+	export SSH_AUTH_SOCK="$TERMUX__PREFIX/var/run/ssh-agent.socket"
+	
+fi
+
