@@ -50,3 +50,6 @@ if [ -f "$__PREFIX/bin/hangover-wine" ]; then
 fi
 export HODLL="libwow64fex.dll"
 export HODLL64="libarm64ecfex.dll"
+
+# node-gyp
+export GYP_DEFINES="android_ndk_path=''"
