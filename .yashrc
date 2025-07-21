@@ -1,13 +1,6 @@
 #!/bin/sh
 #shellcheck disable=SC3043
 
-local __PREFIX
-if [ -n "$TERMUX__PREFIX" ]; then
-	__PREFIX="$TERMUX__PREFIX"
-else
-  __PREFIX="/"
-fi
-
 export PS1
 local __PS1__OS
 __PS1__OS='\$'
@@ -75,30 +68,6 @@ _wm() {
 alias wm3='_wm 96'
 alias wm2='_wm 192'
 alias wm1='_wm 288'
-
-arm64() {
-	qemu-system-aarch64 \
-		-machine virt \
-		-cpu cortex-a55 \
-		-m 8G \
-		-drive if=pflash,file="$__PREFIX/share/qemu/edk2-aarch64-code.fd",format=raw,readonly=on \
-		-netdev user,id=n1,dns=8.8.8.8,hostfwd=tcp::2222-:22 \
-    -device virtio-net,netdev=n1 \
-    -nographic \
-		"$@"
-}
-
-x64() {
-	qemu-system-x86_64 \
-		-machine q35 \
-		-cpu qemu64 \
-		-m 8G \
-		-drive if=pflash,file="$__PREFIX/share/qemu/edk2-x86_64-code.fd",format=raw,readonly=on \
-		-netdev user,id=n1,dns=8.8.8.8,hostfwd=tcp::2222-:22 \
-    -device virtio-net,netdev=n1 \
-    -nographic \
-		"$@"
-}
 
 disk() {
 	if [ -d "/storage/emulated" ]; then
