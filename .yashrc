@@ -14,7 +14,7 @@ __PS1__OS='\$'
 if [ $(uname -o) == "GNU/Linux" ]; then
   __PS1__OS='!'
 fi
-PS1='${${?:/0/\\fg}/#[1-9]/\\fr}${$(pwd)/~/\~}$__PS1__OS$(__git_ps1)\n'
+PS1='${${?:/0/\\fg}/#[1-9]/\\fr}${$(pwd)/~/\~}$(__git_ps1)\n$__PS1__OS '
 
 export YASH_AFTER_CD='ls -Ah --color=auto --group-directories-first'
 _autocd() {
