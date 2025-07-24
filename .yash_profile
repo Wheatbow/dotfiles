@@ -41,7 +41,7 @@ if [ -n "$TERMUX__PREFIX" ]; then
 	# hangover-wine
 	if [ -f "$TERMUX__PREFIX/bin/hangover-wine" ]; then
 		export PATH="$TERMUX__PREFIX/opt/hangover-wine/bin:$PATH"
-		export HODLL="libwow64fex.dll"
+		export HODLL="wowbox64.dll"
 		export HODLL64="libarm64ecfex.dll"
 	fi
 

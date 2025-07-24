@@ -1,17 +1,18 @@
 #!/bin/sh
 #shellcheck disable=SC3043
 
-local _git_prompt_sh
-_git_prompt_sh="$TERMUX__PREFIX/etc/bash_completion.d/git-prompt.sh"
+local __git_prompt_sh
+__git_prompt_sh="$TERMUX__PREFIX/etc/bash_completion.d/git-prompt.sh"
 
-if [ -f "$_git_prompt_sh" ]; then
-	. "$_git_prompt_sh"
+if [ -f "$__git_prompt_sh" ]; then
+	#shellcheck source=/dev/null
+	. "$__git_prompt_sh"
 fi
 
 export PS1
 local __PS1__OS
 __PS1__OS='\$'
-if [ $(uname -o) == "GNU/Linux" ]; then
+if [ "$(uname -o)" = "GNU/Linux" ]; then
   __PS1__OS='!'
 fi
 PS1='${${?:/0/\\fg}/#[1-9]/\\fr}${$(pwd)/~/\~}$(__git_ps1)\n$__PS1__OS '
