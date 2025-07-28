@@ -91,5 +91,6 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 bar {
-        status_command i3status
+        position top
+        status_command ~/.config/i3/status.sh
 }
