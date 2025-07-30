@@ -65,9 +65,9 @@ wm() {
 	fi
   local cursor_size
   cursor_size="32"
-  if [ "$dpi" -ge 192 ]; then
+  if [ "$dpi" -gt 192 ]; then
   	cursor_size="48"
-  elif [ "$dpi" -ge 288 ]; then
+  elif [ "$dpi" -gt 288 ]; then
     cursor_size="64"
   fi
   printf "Xft.dpi: %s\nXcursor.size: %s\n" "$dpi" "$cursor_size" >| ".Xdpi"
