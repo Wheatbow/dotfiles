@@ -10,7 +10,7 @@ floating_modifier $mod
 
 tiling_drag modifier titlebar
 
-bindsym $mod+Return exec st -f monospace:size=10
+bindsym $mod+Return exec st -f monospace:size=11
 
 bindsym $mod+k kill
 

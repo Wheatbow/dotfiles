@@ -61,7 +61,7 @@ wm() {
 	local dpi
 	dpi="$1"
 	if [ -z "$dpi" ]; then
-		dpi="192"
+		dpi="168"
 	fi
   local cursor_size
   cursor_size="32"
