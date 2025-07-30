@@ -49,40 +49,29 @@ alias xq='xbps-query -Rs'
 alias xc='xbps-remove --clean-cache'
 alias xl='xbps-query -l'
 
-alias void='proot-distro login --user ed void'
-
-alias void_x64='proot-distro login --user ed void_x64'
-
-_wm() {
-	local dpi
-	dpi="$1"
-	case "$dpi" in
-		96)
-		  ln -sf ~/.Xresources96 ~/.Xresources
-		  ;;
-		192)
-		  ln -sf ~/.Xresources192 ~/.Xresources
-		  ;;
-		288)
-		  ln -sf ~/.Xresources288 ~/.Xresources
-		  ;;
-		*)
-		  printf "_wm %s: unsupported dpi" "$dpi"
-		  return 1
-	esac
-  termux-x11 :0 -xstartup "dbus-launch --exit-with-session i3" -dpi "$dpi"
-}
-
-alias wm3='_wm 96'
-alias wm2='_wm 192'
-alias wm1='_wm 288'
-
 disk() {
 	if [ -d "/storage/emulated" ]; then
 		df "/storage/emulated"
 	else
 	  df "/"
 	fi
+}
+
+wm() {
+	local dpi
+	dpi="$1"
+	if [ -z "$dpi" ]; then
+		dpi="192"
+	fi
+  local cursor_size
+  cursor_size="32"
+  if [ "$dpi" -ge 192 ]; then
+  	cursor_size="48"
+  elif [ "$dpi" -ge 288 ]; then
+    cursor_size="64"
+  fi
+  printf "Xft.dpi: %s\nXcursor.size: %s\n" "$dpi" "$cursor_size" >| ".Xdpi"
+  termux-x11 :0 -xstartup "dbus-launch --exit-with-session i3" -dpi "$dpi" 1> /dev/null
 }
 
 _basename() {
