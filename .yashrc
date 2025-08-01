@@ -48,6 +48,20 @@ alias xr='xbps-remove'
 alias xq='xbps-query -Rs'
 alias xc='xbps-remove --clean-cache'
 alias xl='xbps-query -l'
+alias ga="git add"
+alias gmv="git mv"
+alias grm="git remove"
+alias gu="git restore"
+alias gc="git commit"
+alias gp="git push"
+alias gd="git diff"
+alias gl="git log"
+alias gs="git status"
+alias gb="git branch"
+alias gco="git checkout"
+alias gf="git fetch"
+alias gm="git merge"
+alias gfm="git pull"
 
 disk() {
 	if [ -d "/storage/emulated" ]; then
