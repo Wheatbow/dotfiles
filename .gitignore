@@ -16,7 +16,7 @@
 !/.config/helix/themes/
 !/.config/helix/themes/*
 !/.config/i3/
-!/.config/i3/config
+!/.config/i3/*
 !/.config/mpv/
 !/.config/mpv/mpv.conf
 !/.config/fontconfig/
