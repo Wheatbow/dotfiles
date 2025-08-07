@@ -84,8 +84,8 @@ wm() {
   elif [ "$dpi" -gt 288 ]; then
     cursor_size="64"
   fi
-  printf "Xft.dpi: %s\nXcursor.size: %s\n" "$dpi" "$cursor_size" >| ".Xdpi"
-  termux-x11 :0 -xstartup "dbus-launch --exit-with-session i3" -dpi "$dpi" 1> /dev/null
+  printf "Xft.dpi: %s\nXcursor.size: %s\n" "$dpi" "$cursor_size" >| "~/.Xdpi"
+  termux-x11 :0 -xstartup "dbus-launch --exit-with-session i3" -dpi "$dpi" 1> /dev/null 2>&1 &
 }
 
 _basename() {
