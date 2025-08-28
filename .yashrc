@@ -62,6 +62,8 @@ alias gco="git checkout"
 alias gf="git fetch"
 alias gm="git merge"
 alias gfm="git pull"
+alias v="vault"
+alias ve="vault --edit"
 
 disk() {
 	if [ -d "/storage/emulated" ]; then
@@ -276,33 +278,52 @@ _checkdepends() {
 	done
 }
 
-plot() {
-	if ! _checkdepends "plot: needs %s to run\n" "hexdump" "tar" "age" "inotifywait" "git" "rsync"; then
+up() {
+	local path
+	path="."
+	if [ -n "$1" ]; then
+		path="$1"
+	elif [ -n "$VAULT_PATH" ]; then
+	  path="$VAULT_PATH"
+	fi
+  local message
+  message="$2"
+  {
+    flock -s 3
+		if [ -n "$(git -C "$path" status --porcelain)" ]; then
+			git -C "$path" add --all || return
+		fi
+  } 3> "$path/.lock"
+	printf "Committing changes...\n"
+	git -C "$path" commit --allow-empty-message --no-edit -m "$message" || return
+	printf "Pushing changes...\n"
+  git -C "$path" push || return
+}
+
+vault() {
+	if ! _checkdepends "vault: needs %s to run\n" "hexdump" "tar" "age" "inotifywait" "git" "rsync" "flock"; then
 		return 1
 	fi
 	local command
-	command="edit"
+	command="shell"
 	for option in "$@"; do
 		if [ "$option" != "${option#-}" ]; then
 			case "$option" in
 				--init)
 					command="init"
 				;;
-				-s|--shell)
-					command="shell"
-				;;
 				-e|--edit)
 					command="edit"
 				;;
 				*)
-					printf "plot %s: unrecognized option\n" "$option"
+					printf "vault %s: unrecognized option\n" "$option"
 					return 1
 			esac
 			shift
 		fi
 	done
 	if [ -z "$1" ]; then
-		printf "plot: missing path\n"
+		printf "vault: missing path\n"
 		return 1
 	fi
 	local path
@@ -311,7 +332,7 @@ plot() {
 	case "$command" in
 		init)
 			if [ -e "$path" ]; then
-				printf "plot %s create: file or directory already exist\n" "$path"
+				printf "vault %s create: file or directory already exist\n" "$path"
 				return 1
 			fi
 			temp="$(_mktemp -d act)"
@@ -337,17 +358,18 @@ plot() {
 			;;
 		shell|edit)
 			if [ ! -d "$path" ]; then
-				printf "plot %s %s: no such directory\n" "$path" "$command"
+				printf "vault %s %s: no such directory\n" "$path" "$command"
 				return 1
 			elif [ ! -f "$path/identity.age" ]; then
-				printf "plot %s %s: missing identity.age\n" "$path" "$command"
+				printf "vault %s %s: missing identity.age\n" "$path" "$command"
 				return 1
 			elif [ ! -f "$path/protected.age" ]; then
-				printf "plot %s %s: missing protected.age\n" "$path" "$command"
+				printf "vault %s %s: missing protected.age\n" "$path" "$command"
 				return 1
 			fi
 			temp="$(_mktemp -d XXXXXXXXXXXXXXXX)"
 			trap 'rm -rf "$temp"' EXIT
+			printf "%s\n" "$path" > "$temp/path"
 			mkdir "$temp/protected"
 			if ! age -d -i "$path/identity.age" "$path/protected.age" | tar -x --zstd -C "$temp/protected"; then
 				rm -rf "$temp"
@@ -357,31 +379,34 @@ plot() {
 			local pipe
 			pipe="$temp/pipe"
 			mkfifo "$pipe"
-			inotifywait -m -q -r -e create -e delete -e modify -e move -o "$pipe" "$temp/protected/content" &
+			{ inotifywait -m -q -r -e create -e delete -e modify -e move -o "$pipe" "$temp/protected/content" & } 2>/dev/null
 			local pid
 			pid=$!
-			{ while read -r _event; do
-				  rsync -qaxr --delete "$temp/protected/" "$temp/protected.copy"
-					tar -c --zstd -C "$temp/protected.copy" . | age -e -R "$temp/protected.copy/recipient" -o "$path/protected.age"
-			  done < "$pipe" 
-			} &
+			{
+				{ while read -r _event; do
+				  	rsync -qaxr --delete "$temp/protected/" "$temp/protected.copy"
+				  	{
+				    	flock -x 3
+							tar -c --zstd -C "$temp/protected.copy" . | age -e -R "$temp/protected.copy/recipient" -o "$path/protected.age"
+				  	} 3> "$path/.lock"
+			  	done < "$pipe"
+				} &
+		  } 2>/dev/null
 			case "$command" in
-				edit) "$EDITOR" "$temp/protected/content" ;;
-				shell) yash -c "cd $temp/protected/content;$SHELL" ;;
+			  edit)
+			  	"$EDITOR" "$temp/protected/content"
+			  ;;
+				shell)
+					VAULT_PATH="$path" TASKRC="$temp/protected/taskrc" TASKDATA="$temp/protected/.task" yash -c "cd $temp/protected/content;$SHELL"
+				;;
 			esac
 			kill "$pid"
 			wait 1> /dev/null
 			rm -rf "$temp"
-			if [ -n "$(git -C "$path" status --porcelain)" ]; then
-				git -C "$path" add --all || return
-				printf "Committing changes...\n"
-				git -C "$path" commit --allow-empty-message --no-edit || return
-				printf "Pushing changes...\n"
-				git -C "$path" push || return
-			fi
+			up "$path"
 			;;
 		*)
-			printf "plot %s %s: invalid command\n" "$path" "$command"
+			printf "vault %s %s: invalid command\n" "$path" "$command"
 			return 1
 	esac
 }
