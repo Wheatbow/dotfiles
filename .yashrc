@@ -379,7 +379,7 @@ vault() {
 			local pipe
 			pipe="$temp/pipe"
 			mkfifo "$pipe"
-			{ inotifywait -m -q -r -e create -e delete -e modify -e move -o "$pipe" "$temp/protected/content" & } 2>/dev/null
+			{ inotifywait -m -q -r -e create -e delete -e modify -e move -o "$pipe" "$temp/protected" & } 2>/dev/null
 			local pid
 			pid=$!
 			{
