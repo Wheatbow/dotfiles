@@ -227,6 +227,10 @@ _realpath() {
 	done
 }
 
+_random() {
+  hexdump -e '"%02x" 8 ""' -n 8 /dev/random
+}
+
 _mktemp() {
 	local directory
 	directory=0
@@ -245,15 +249,13 @@ _mktemp() {
 	done
 	local prefix
 	if [ -z "$1" ]; then
-		prefix="tmp"
+		prefix="tmp-"
 	else
 		prefix="$1"
 	fi
 	local target
 	while true; do
-		local suffix
-		suffix="$(hexdump -e '"%02x" 8 ""' -n 8 /dev/random)"
-		target="$TMPDIR/$prefix.$suffix"
+		target="$TMPDIR/$prefix$(_random)"
 		if ! [ -e "$target" ]; then
 			break
 		fi
@@ -336,7 +338,7 @@ vault() {
 				printf "vault %s create: file or directory already exist\n" "$path"
 				return 1
 			fi
-			temp="$(_mktemp -d act)"
+			temp="$(_mktemp -d "vault-")"
 			trap 'rm -rf "$temp"' EXIT
 			local identity
 			IFS="" identity="$(age-keygen 2> /dev/null)"
@@ -354,6 +356,8 @@ vault() {
 			tar -c --zstd -C "$temp/protected" . | age -e -r "$recipient" -o "$temp/protected.age"
 			mkdir -p "$path"
 			cp "$temp/identity.age" "$temp/protected.age" "$path"
+			_basename "$temp" > "$path/.id"
+			echo "$temp"
 			rm -rf "$temp"
 			git -C "$path" init
 			;;
@@ -367,32 +371,45 @@ vault() {
 			elif [ ! -f "$path/protected.age" ]; then
 				printf "vault %s %s: missing protected.age\n" "$path" "$command"
 				return 1
-			fi
-			temp="$(_mktemp -d XXXXXXXXXXXXXXXX)"
-			trap 'rm -rf "$temp"' EXIT
-			printf "%s\n" "$path" > "$temp/path"
-			mkdir "$temp/protected"
-			if ! age -d -i "$path/identity.age" "$path/protected.age" | tar -x --zstd -C "$temp/protected"; then
-				rm -rf "$temp"
+			elif [ ! -f "$path/.id" ]; then
+				printf "vault %s %s: missing .id\n" "$path" "$command"
 				return 1
 			fi
-		  cp -axr "$temp/protected" "$temp/protected.copy"
-			local pipe
-			pipe="$temp/pipe"
-			mkfifo "$pipe"
-			{ inotifywait -m -q -r -e create -e delete -e modify -e move -o "$pipe" "$temp/protected" & } 2>/dev/null
-			local pid
-			pid=$!
-			{
-				{ while read -r _event; do
-				  	rsync -qaxr --delete "$temp/protected/" "$temp/protected.copy"
-				  	{
-				    	flock -x 3
-							tar -c --zstd -C "$temp/protected.copy" . | age -e -R "$temp/protected.copy/recipient" -o "$path/protected.age"
-				  	} 3> "$path/.lock"
-			  	done < "$pipe"
-				} &
-		  } 2>/dev/null
+	    local id
+		  read -r id < "$path/.id"
+		  local temp
+		  temp="$TMPDIR/$id"
+		  local server
+		  server=false
+		  if ! [ -d "$temp" ]; then
+				server=true
+			fi
+		  local pid
+		  if "$server"; then
+		  	mkdir -p "$temp"
+				trap 'rm -rf "$temp"' EXIT
+				mkdir "$temp/protected"
+				if ! age -d -i "$path/identity.age" "$path/protected.age" | tar -x --zstd -C "$temp/protected"; then
+					rm -rf "$temp"
+					return 1
+				fi
+		  	cp -axr "$temp/protected" "$temp/protected.copy"
+		  	local pipe
+		  	pipe="$temp/pipe"
+				mkfifo "$pipe"
+				{ inotifywait -m -q -r -e create -e delete -e modify -e move -o "$pipe" "$temp/protected" & } 2>/dev/null
+				pid="$!"
+				{
+					{ while read -r _event; do
+				  		{
+				    		flock -x 3
+				  	  	rsync -qaxr --delete "$temp/protected/" "$temp/protected.copy"
+								tar -c --zstd -C "$temp/protected.copy" . | age -e -R "$temp/protected.copy/recipient" -o "$path/protected.age"
+				  		} 3> "$path/.lock"
+			  		done < "$pipe"
+					} &
+		  	} 2>/dev/null
+		  fi
 			case "$command" in
 			  edit)
 			  	"$EDITOR" "$temp/protected/content"
@@ -401,9 +418,11 @@ vault() {
 					VAULT_PATH="$path" TASKRC="$temp/protected/taskrc" TASKDATA="$temp/protected/.task" yash -c "cd $temp/protected/content;$SHELL"
 				;;
 			esac
-			kill "$pid"
-			wait 1> /dev/null
-			rm -rf "$temp"
+		  if "$server"; then
+				kill "$pid"
+				wait 1> /dev/null
+				rm -rf "$temp"
+			fi
 			up "$path"
 			;;
 		*)
