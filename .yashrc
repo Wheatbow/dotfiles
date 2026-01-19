@@ -62,8 +62,8 @@ alias gco="git checkout"
 alias gf="git fetch"
 alias gm="git merge"
 alias gfm="git pull"
-alias v="vault"
-alias ve="vault --edit"
+alias vsh="vault"
+alias v="vault --edit"
 alias t="task"
 
 disk() {
