@@ -24,7 +24,16 @@ export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 # llama-cpp
 export GGML_VK_FORCE_MAX_ALLOCATION_SIZE="2147483646"
 
-# Termux
+# fcitx
+export GTK_IM_MODULE="fcitx"
+export QT_IM_MODULE="fcitx"
+export XMODIFIERS="@im=fcitx"
+
+# cargo
+export CARGO_HOME="$XDG_DATA_HOME"/cargo
+export PATH="$CARGO_HOME/bin:$PATH"
+
+# termux
 if [ -n "$TERMUX__PREFIX" ]; then
 
 	# Workaround: PREFIX set by Termux interferes with some commands
@@ -51,4 +60,3 @@ if [ -n "$TERMUX__PREFIX" ]; then
 	export SSH_AUTH_SOCK="$TERMUX__PREFIX/var/run/ssh-agent.socket"
 	
 fi
-
