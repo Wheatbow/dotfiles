@@ -41,7 +41,7 @@
 "hint" = "white"
 "warning" = "yellow"
 "error" = "red"
-"diagnostic" = { bg = "grey30"}
+"diagnostic" = { fg = "black", bg = "gray5"}
 "diagnostic.warning" = { fg = "black", bg = "yellow" }
 "diagnostic.error" = { fg = "black", bg = "red" }
 "markup.heading.marker" = "gray20"
