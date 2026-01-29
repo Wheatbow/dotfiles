@@ -2,6 +2,10 @@
 command = "harper-ls"
 args = ["--stdio"]
 
+[language-server.harper-ls.config.harper-ls.linters]
+UseTitleCase = false
+LongSentences = false
+
 [[language]]
 name = "markdown"
 language-servers = ["harper-ls"]
