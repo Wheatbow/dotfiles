@@ -41,7 +41,7 @@
 "hint" = "gray20"
 "warning" = "yellow"
 "error" = "red"
-"diagnostic" = { modifiers = ["dim"] }
+"diagnostic" = { bg = "gray30", modifiers = ["dim"] }
 "diagnostic.warning" = { fg = "black", bg = "yellow" }
 "diagnostic.error" = { fg = "black", bg = "red" }
 "markup.heading.marker" = "gray20"
@@ -51,9 +51,9 @@
 "markup.heading.4" = { fg = "magenta", modifiers = ["bold"] }
 "markup.heading.5" = { fg = "green", modifiers = ["bold"] }
 "markup.heading.6" = { fg = "cyan", modifiers = ["bold"] }
-"markup.list" = { fg = "gray30" }
-"markup.bold" = { fg = "white", modifiers = ["bold"] }
-"markup.italic" = { fg = "white", modifiers = ["italic"] }
+"markup.list" = { fg = "cyan", modifiers = ["bold"] }
+"markup.bold" = { modifiers = ["bold"] }
+"markup.italic" = { modifiers = ["italic"] }
 "markup.link.url" = { fg = "blue", modifiers = ["underlined"] }
 "markup.link.label" = { fg = "cyan" }
 "markup.link.text" = { fg = "cyan" }
