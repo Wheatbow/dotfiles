@@ -51,7 +51,7 @@
 "markup.heading.4" = { fg = "blue", modifiers = ["bold"] }
 "markup.heading.5" = { fg = "cyan", modifiers = ["bold"] }
 "markup.heading.6" = { fg = "white", modifiers = ["bold"] }
-"markup.list" = { fg = "green", modifiers = ["bold"] }
+"markup.list" = { fg = "white", modifiers = ["bold"] }
 "markup.bold" = { modifiers = ["bold"] }
 "markup.italic" = { modifiers = ["italic"] }
 "markup.link.url" = { fg = "blue", modifiers = ["underlined"] }
