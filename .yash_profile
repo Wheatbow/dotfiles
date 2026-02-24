@@ -25,8 +25,13 @@ export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 export GGML_VK_FORCE_MAX_ALLOCATION_SIZE="2147483646"
 
 # cargo
-export CARGO_HOME="$XDG_DATA_HOME"/cargo
+export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export PATH="$CARGO_HOME/bin:$PATH"
+
+# go
+export GOPATH="$XDG_DATA_HOME/go"
+export GOMODCACHE="$XDG_CACHE_HOME/go/mod"
+export PATH="$GOPATH/bin:$PATH"
 
 # termux
 if [ -n "$TERMUX__PREFIX" ]; then
