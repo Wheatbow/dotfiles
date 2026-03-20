@@ -57,9 +57,11 @@ if [ -n "$TERMUX__PREFIX" ]; then
 		export HODLL64="libarm64ecfex.dll"
 	fi
 
-	# node-gyp
+	# Workaround: node-gyp
 	export GYP_DEFINES="android_ndk_path=''"
 
+	# Workaround: rustls-platform-verifier
+	export SSL_CERT_DIR="$TERMUX__PREFIX/etc/tls"
+
 	export SSH_AUTH_SOCK="$TERMUX__PREFIX/var/run/ssh-agent.socket"
-	
 fi
