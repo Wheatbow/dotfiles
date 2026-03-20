@@ -31,7 +31,7 @@ alias rm="rm -Ir"
 alias cp="cp -i"
 alias mv="mv -i"
 alias ls="ls -Ah --color=auto --group-directories-first"
-alias du="du -h"
+alias du="du -hs"
 alias df="df -h"
 alias mem="free -m"
 alias pcpu='ps uf -u "$(whoami)" --sort=-pcpu'
