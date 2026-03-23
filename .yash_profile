@@ -38,7 +38,7 @@ export D2_LAYOUT="elk"
 
 # gcloud
 export CLOUDSDK_ROOT_DIR="$XDG_DATA_HOME/google-cloud-sdk"
-export PATh="$CLOUDSDK_ROOT_DIR/bin:$PATH"
+export PATH="$CLOUDSDK_ROOT_DIR/bin:$PATH"
 
 # termux
 if [ -n "$TERMUX__PREFIX" ]; then
