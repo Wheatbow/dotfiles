@@ -36,18 +36,12 @@ alias df="df -h"
 alias mem="free -m"
 alias pcpu='ps uf -u "$(whoami)" --sort=-pcpu'
 alias pmem='ps uf -u "$(whoami)" --sort=-pmem'
-alias pi='pkg install'
-alias pu='pkg update; pkg upgrade'
-alias pr='pkg uninstall'
-alias pq='pkg search'
-alias pc='pkg clean'
-alias pl='pkg list-installed'
-alias xi='xbps-install'
-alias xu='xbps-install -Su'
-alias xr='xbps-remove'
-alias xq='xbps-query -Rs'
-alias xc='xbps-remove --clean-cache'
-alias xl='xbps-query -l'
+alias pki='pkg install'
+alias pku='pkg update; pkg upgrade'
+alias pkr='pkg uninstall'
+alias pkq='pkg search'
+alias pkc='pkg clean'
+alias pkl='pkg list-installed'
 alias ga="git add"
 alias gmv="git mv"
 alias grm="git remove"
@@ -62,9 +56,9 @@ alias gco="git checkout"
 alias gf="git fetch"
 alias gm="git merge"
 alias gfm="git pull"
+alias nv="nvim"
 alias vsh="vault"
 alias v="vault --edit"
-alias t="task"
 
 disk() {
 	if [ -d "/storage/emulated" ]; then
