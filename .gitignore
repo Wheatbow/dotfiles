@@ -11,11 +11,8 @@
 !/.termux/termux.properties
 !/.config/
 !/.config/user-dirs.dirs
-!/.config/helix/
-!/.config/helix/config.toml
-!/.config/helix/languages.toml
-!/.config/helix/themes/
-!/.config/helix/themes/*
+!/.config/nvim/
+!/.config/nvim/init.lua
 !/.config/i3/
 !/.config/i3/*
 !/.config/mpv/
