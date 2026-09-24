@@ -76,10 +76,10 @@ wm() {
 	fi
   local cursor_size
   cursor_size="32"
-  if [ "$dpi" -gt 192 ]; then
-  	cursor_size="48"
-  elif [ "$dpi" -gt 288 ]; then
-    cursor_size="64"
+  if [ "$dpi" -gt 288 ]; then
+  	cursor_size="64"
+  elif [ "$dpi" -gt 192 ]; then
+    cursor_size="48"
   fi
   printf "Xft.dpi: %s\nXcursor.size: %s\n" "$dpi" "$cursor_size" >| "$HOME/.Xdpi"
   termux-x11 :0 -xstartup "dbus-launch --exit-with-session i3" -dpi "$dpi" 1> /dev/null 2>&1
