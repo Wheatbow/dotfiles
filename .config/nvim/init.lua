@@ -1,9 +1,15 @@
 vim.o.number = true
 vim.o.tabstop = 2
 vim.o.shiftwidth = 2
+vim.opt.wrap = true
+vim.opt.linebreak = true
+vim.opt.breakindent = true
 vim.o.complete = "o"
 vim.o.completeopt = "fuzzy,menuone,noselect"
 vim.o.autocomplete = true
+
+vim.keymap.set('i', '<Up>', '<C-o>gk', { silent = true })
+vim.keymap.set('i', '<Down>', '<C-o>gj', { silent = true })
 
 vim.pack.add({ "https://www.github.com/nvim-lua/plenary.nvim" })
 vim.pack.add({ "https://github.com/nvim-treesitter/nvim-treesitter" })
