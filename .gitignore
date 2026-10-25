@@ -4,11 +4,11 @@
 !/.yash_profile
 !/.yashrc
 !/.hushlogin
-!/.Xresources96
-!/.Xresources192
-!/.Xresources288
 !/.termux/
 !/.termux/termux.properties
+!/.pi/
+!/.pi/agent/
+!/.pi/agent/APPEND_SYSTEM.md
 !/.config/
 !/.config/user-dirs.dirs
 !/.config/nvim/
