@@ -14,3 +14,7 @@ Treat `"$TERMUX__PREFIX"` as read-only for new software, it belongs to the packa
 
 2. Otherwise install user-local, under `~/.local` (XDG layout).
 
+## Installing APKs
+
+The OEM installer rejects APKs opened from Termux-private paths. Copy to shared storage and open from there.
+
