@@ -8,6 +8,7 @@ vim.o.complete = "o"
 vim.o.completeopt = "fuzzy,menuone,noselect"
 vim.o.autocomplete = true
 vim.o.termguicolors = true
+vim.o.hlsearch = false
 
 vim.keymap.set('i', '<Up>', '<C-o>gk', { silent = true })
 vim.keymap.set('i', '<Down>', '<C-o>gj', { silent = true })
