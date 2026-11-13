@@ -1,9 +1,14 @@
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
 vim.o.number = true
+vim.o.numberwidth = 2
+vim.o.signcolumn = "auto:1"
 vim.o.tabstop = 2
 vim.o.shiftwidth = 2
-vim.opt.wrap = true
-vim.opt.linebreak = true
-vim.opt.breakindent = true
+vim.o.wrap = true
+vim.o.linebreak = true
+vim.o.breakindent = true
 vim.o.complete = "o"
 vim.o.completeopt = "fuzzy,menuone,noselect"
 vim.o.autocomplete = true
@@ -31,4 +36,20 @@ end
 markdown_headings()
 vim.api.nvim_create_autocmd("ColorScheme", { callback = markdown_headings })
 
-vim.pack.add({ "https://github.com/nvim-treesitter/nvim-treesitter" })
+vim.pack.add({
+  "https://github.com/nvim-treesitter/nvim-treesitter",
+  "https://github.com/echasnovski/mini.pick",
+  "https://github.com/echasnovski/mini.diff",
+})
+
+require("mini.pick").setup()
+
+vim.keymap.set("n", "<leader>f", function() MiniPick.builtin.files() end, { desc = "Pick files" })
+
+require("mini.diff").setup({
+  view = {
+    style = "sign",
+    signs = { add = "┃", change = "┃", delete = "_" },
+  },
+})
+
