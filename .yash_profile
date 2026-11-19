@@ -18,7 +18,7 @@ export XDG_STATE_HOME="$HOME/.local/state"
 export PATH="$HOME/.local/bin:$PATH"
 
 export EDITOR="nvim"
-export BROWSER="firefox"
+export BROWSER="$HOME/.local/bin/browser"
 
 # nodejs
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"

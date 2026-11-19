@@ -1,0 +1,8 @@
+#!/bin/sh
+# $BROWSER: firefox under X (Termux-X11), Android's default browser otherwise.
+
+if [ -n "$DISPLAY" ]; then
+	exec firefox "$@"
+fi
+
+exec termux-open "$@"

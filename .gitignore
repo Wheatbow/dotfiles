@@ -26,4 +26,6 @@
 !/.local/
 !/.local/share/
 !/.local/share/andromeda.jpg
+!/.local/bin/
+!/.local/bin/browser
 
