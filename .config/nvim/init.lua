@@ -44,7 +44,14 @@ vim.pack.add({
 
 require("mini.pick").setup()
 
-vim.keymap.set("n", "<leader>f", function() MiniPick.builtin.files() end, { desc = "Pick files" })
+-- Pick from the project root (nearest .git), not the buffer's directory
+local function project_root()
+  return vim.fs.root(0, ".git") or vim.fn.getcwd()
+end
+
+vim.keymap.set("n", "<leader>f", function()
+  MiniPick.builtin.files({}, { source = { cwd = project_root() } })
+end, { desc = "Pick files" })
 
 require("mini.diff").setup({
   view = {
