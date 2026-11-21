@@ -70,20 +70,27 @@ disk() {
 }
 
 wm() {
-	local dpi
-	dpi="$1"
-	if [ -z "$dpi" ]; then
-		dpi="168"
-	fi
-  local cursor_size
-  cursor_size="32"
-  if [ "$dpi" -gt 288 ]; then
-  	cursor_size="64"
-  elif [ "$dpi" -gt 192 ]; then
-    cursor_size="48"
-  fi
-  printf "Xft.dpi: %s\nXcursor.size: %s\n" "$dpi" "$cursor_size" >| "$HOME/.Xdpi"
-  termux-x11 :0 -xstartup "dbus-launch --exit-with-session i3" -dpi "$dpi" 1> /dev/null 2>&1
+	local profile dpi cursor_size
+	profile="${1:-phone}"
+	case "$profile" in
+		glasses)
+			dpi=168
+			cursor_size=32
+			;;
+		phone)
+			dpi=320
+			cursor_size=64
+			;;
+		*)
+			printf "wm: unknown profile '%s' (use: glasses, phone)\n" "$profile" >&2
+			return 1
+			;;
+	esac
+	printf "wm: %s (dpi=%s cursor=%s)\n" "$profile" "$dpi" "$cursor_size"
+	XCURSOR_SIZE="$cursor_size" XCURSOR_THEME="Adwaita" \
+		termux-x11 :0 -dpi "$dpi" \
+		-xstartup "dbus-launch --exit-with-session i3 -c $HOME/.config/i3/$profile.conf" \
+		1> /dev/null 2>&1
 }
 
 _basename() {
