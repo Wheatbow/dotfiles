@@ -53,7 +53,7 @@ require("mini.diff").setup({
 
 require("snacks").setup()
 
-vim.keymap.set("n", "<leader>b", function()
+vim.keymap.set("n", "<leader>fb", function()
   Snacks.picker.buffers()
 end, { desc = "Buffers" })
 
@@ -80,6 +80,37 @@ end, { desc = "Follow link" })
 vim.keymap.set("n", "<leader>lw", function()
   Snacks.picker.lsp_workspace_symbols()
 end, { desc = "Workspace symbols" })
+
+vim.keymap.set({ "n", "v" }, "<leader>ca", function()
+  vim.lsp.buf.code_action()
+end, { desc = "Code actions" })
+
+vim.keymap.set("n", "<leader>ce", function()
+  vim.lsp.buf.code_action({
+    apply = true,
+    filter = function(a)
+      return a.kind == "custom.extract" or a.title == "Extract"
+    end,
+  })
+end, { desc = "Extract section" })
+
+vim.keymap.set("n", "<leader>ci", function()
+  vim.lsp.buf.code_action({
+    apply = true,
+    filter = function(a)
+      return a.kind == "custom.inline_section" or a.title == "Inline section"
+    end,
+  })
+end, { desc = "Inline section" })
+
+vim.keymap.set({ "n", "v" }, "<leader>cl", function()
+  vim.lsp.buf.code_action({
+    apply = true,
+    filter = function(a)
+      return a.kind == "custom.link_slug" or a.title == "Link word"
+    end,
+  })
+end, { desc = "Link word" })
 
 vim.keymap.set("n", "<leader>gs", function()
   Snacks.picker.git_status()
