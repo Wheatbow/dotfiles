@@ -1,0 +1,36 @@
+{
+  "research": {
+    "provider": "opencode-go",
+    "model": "deepseek-v4.1-flash",
+    "thinkingLevel": "high",
+    "tools": [
+      "read",
+      "codemode"
+    ],
+    "instructions": "Cite every claim and never modify the project."
+  },
+  "build": {
+    "provider": "opencode-go",
+    "model": "deepseek-v4.1-flash",
+    "thinkingLevel": "high",
+    "tools": [
+      "read",
+      "bash",
+      "edit",
+      "write",
+      "codemode"
+    ],
+    "instructions": "Make the smallest correct change, run the checks, and report what changed."
+  },
+  "review": {
+    "provider": "opencode-go",
+    "model": "deepseek-v4.1-flash",
+    "thinkingLevel": "high",
+    "tools": [
+      "read",
+      "bash",
+      "codemode"
+    ],
+    "instructions": "Find what is actually broken, rank findings by severity with a concrete failure case."
+  }
+}
